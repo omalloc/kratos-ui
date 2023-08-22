@@ -11,10 +11,11 @@ export const request: RequestConfig = {
   },
   responseInterceptors: [
     (response: any) => {
-      const { data } = response;
-      if (response.status <= 206) {
-        return data;
-      }
+      // const { data } = response;
+      // console.log('response', data);
+      // if (response.status <= 206) {
+      //   return data;
+      // }
       return response;
     },
   ],

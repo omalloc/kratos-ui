@@ -1,41 +1,48 @@
 import services from '@/services/console';
 import { PlusOutlined } from '@ant-design/icons';
 import {
+  ModalForm,
   PageContainer,
+  ProFormSelect,
+  ProFormText,
   ProTable,
-  TableDropdown,
   type ProColumns,
 } from '@ant-design/pro-components';
-import { Button, Tag } from 'antd';
-import { useRef } from 'react';
+import { Button, Popconfirm, Tag } from 'antd';
+import { useRef, useState } from 'react';
 
-const { ZoneGetZoneList, ZoneCreateZone } = services.Zone;
+const { ZoneGetZoneList, ZoneCreateZone, ZoneDeleteZone } = services.Zone;
+
+const envEnum: Record<string, string> = {
+  dev: '开发',
+  test: '测试',
+  qa: 'QA',
+  prod: '生产',
+};
 
 const columns: ProColumns[] = [
+  { dataIndex: 'id', title: 'ID', hideInSearch: true },
   {
     dataIndex: 'code',
-    title: '可用区码',
-    hideInSearch: true,
-  },
-  {
-    dataIndex: 'name',
     title: '可用区',
-    sorter: true,
+    hideInSearch: true,
+    renderText: (_, record) => (
+      <span>
+        {record.code}({record.name})
+      </span>
+    ),
   },
+  { dataIndex: 'regionName', title: '地区', hideInSearch: true },
   {
     dataIndex: 'env',
     title: '环境',
-    renderText: (text) => <Tag>{text}</Tag>,
+    valueEnum: envEnum,
+    render: (dom) => <Tag color="gold">{dom}</Tag>,
   },
   {
     dataIndex: 'status',
     title: '状态',
-    render: (_, record) => <Tag color={'gold'}>正常</Tag>,
-  },
-  {
-    dataIndex: 'agent',
-    title: '守护服务',
-    render: (_, record) => <Tag color={'blue'}>在线 (v1.0.1)</Tag>,
+    render: () => <Tag color="green">正常</Tag>,
   },
   {
     title: '操作',
@@ -51,41 +58,48 @@ const columns: ProColumns[] = [
       >
         编辑
       </a>,
-      <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
-        查看
-      </a>,
-      <TableDropdown
-        key="actionGroup"
-        onSelect={() => action?.reload()}
-        menus={[
-          { key: 'copy', name: '复制' },
-          { key: 'delete', name: '删除' },
-        ]}
-      />,
+      <Popconfirm
+        key="del"
+        placement="topRight"
+        title="可用区删除(操作不可逆)"
+        description={`要删除 ${record.name} 可用区吗?`}
+        onConfirm={async () => {
+          await ZoneDeleteZone({ id: record.id });
+          action?.reload();
+        }}
+      >
+        <a style={{ color: 'red' }} rel="noopener noreferrer">
+          删除
+        </a>
+      </Popconfirm>,
     ],
   },
 ];
 
 const DataCenterPage: React.FC = () => {
   const actionRef = useRef();
+  const [formVisible, setFormVisible] = useState(false);
 
   return (
     <PageContainer>
       <ProTable
         actionRef={actionRef}
         columns={columns}
-        request={ZoneCreateZone}
+        rowKey="id"
+        request={async (params) => {
+          const { data = [], total = 0 } = await ZoneGetZoneList(params);
+          return {
+            success: true,
+            data: data,
+            total: total,
+          };
+        }}
         toolBarRender={() => [
           <Button
             key="button"
             icon={<PlusOutlined />}
             onClick={() => {
-              ZoneCreateZone({
-                code: 'z-test',
-                name: '可用区-test',
-              });
-
-              actionRef.current?.reload();
+              setFormVisible(true);
             }}
             type="primary"
           >
@@ -93,6 +107,45 @@ const DataCenterPage: React.FC = () => {
           </Button>,
         ]}
       />
+      <ModalForm<{
+        name: string;
+        code: string;
+        regionName: string;
+        regionCode: string;
+        env: string;
+      }>
+        title="新建可用区"
+        open={formVisible}
+        autoFocusFirstInput
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => {
+            setFormVisible(false);
+          },
+        }}
+        onFinish={async (values) => {
+          const { data } = await ZoneCreateZone(values);
+          if (data?.id > 0) {
+            setFormVisible(false);
+            actionRef.current?.reload();
+          }
+        }}
+      >
+        <ProFormText name="name" label="可用区" />
+        <ProFormText name="code" label="可用区码" />
+        <ProFormText name="regionName" label="地区" />
+        <ProFormText name="regionCode" label="地区代码" />
+        <ProFormSelect
+          name="env"
+          label="环境"
+          valueEnum={{
+            dev: '开发',
+            test: '测试',
+            qa: 'QA',
+            prod: '生产',
+          }}
+        />
+      </ModalForm>
     </PageContainer>
   );
 };

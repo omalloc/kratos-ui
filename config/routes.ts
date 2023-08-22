@@ -29,6 +29,11 @@ export default [
         path: '/admin/datacenter',
         component: './Admin/DataCenter',
       },
+      {
+        name: '节点管理',
+        path: '/admin/node',
+        component: './Admin/Node',
+      },
     ],
   },
 ];
