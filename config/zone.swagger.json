@@ -51,20 +51,6 @@
             "required": false,
             "type": "integer",
             "format": "int32"
-          },
-          {
-            "name": "order_by",
-            "description": "排序字段",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "order",
-            "description": "排序方式",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "tags": [
@@ -216,6 +202,10 @@
                 "region_code": {
                   "type": "string",
                   "title": "地区代码"
+                },
+                "env": {
+                  "type": "string",
+                  "title": "环境"
                 }
               }
             }
@@ -331,6 +321,7 @@
         "data": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/resourceZoneInfo"
           },
           "title": "可用区列表"
@@ -350,6 +341,20 @@
           "title": "可用区"
         }
       }
+    },
+    "resourceOrderBy": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "title": "排序字段"
+        },
+        "order": {
+          "type": "string",
+          "title": "排序方式 asc: 升序 desc: 降序"
+        }
+      },
+      "title": "排序"
     },
     "resourceUpdateZoneReply": {
       "type": "object"
@@ -406,6 +411,7 @@
         "details": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
         }

@@ -35,6 +35,13 @@ declare namespace API {
     data?: resourceZoneInfo;
   };
 
+  type resourceOrderBy = {
+    /** 排序字段 */
+    field?: string;
+    /** 排序方式 asc: 升序 desc: 降序 */
+    order?: string;
+  };
+
   type resourceUpdateZoneReply = true;
 
   type resourceZoneInfo = {
@@ -76,10 +83,6 @@ declare namespace API {
     current?: number;
     /** 每页数量 */
     page_size?: number;
-    /** 排序字段 */
-    order_by?: string;
-    /** 排序方式 */
-    order?: string;
   };
 
   type ZoneGetZoneParams = {

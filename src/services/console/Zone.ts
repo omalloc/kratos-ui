@@ -56,6 +56,7 @@ export async function ZoneUpdateZone(
     code?: string;
     region_name?: string;
     region_code?: string;
+    env?: string;
   },
   options?: { [key: string]: any },
 ) {

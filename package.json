@@ -13,9 +13,9 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.2.1",
-    "@ant-design/pro-components": "^2.6.10",
-    "antd": "^5.8.0"
+    "@ant-design/icons": "^5.2.5",
+    "@ant-design/pro-components": "^2.6.13",
+    "antd": "^5.8.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.18",

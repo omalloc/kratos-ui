@@ -1,5 +1,6 @@
 import { getApps } from '@/services/app';
 import { RunTimeLayoutConfig, type RequestConfig } from '@umijs/max';
+import { App } from 'antd';
 // 运行时配置
 
 export const request: RequestConfig = {
@@ -43,7 +44,6 @@ const transfrom = (apps: any[]) => {
 };
 
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
-  console.log('initialState', initialState);
   return {
     logo: '/logo.svg',
     title: '',
@@ -52,10 +52,18 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     splitMenus: true,
     fixedHeader: true,
     fixSiderbar: true,
+    collapsed: true,
+    collapsedButtonRender: false,
+    iconfontUrl: '//at.alicdn.com/t/c/font_4221036_wwlt59xm5zi.js',
     menu: {
       locale: false,
+      type: 'group',
+      collapsedShowTitle: true,
     },
     appList: transfrom(initialState?.apps || []),
-    siderWidth: 208,
+    // siderWidth: 180, // ignored prop.
+    childrenRender(dom) {
+      return <App>{dom}</App>
+    },
   };
 };

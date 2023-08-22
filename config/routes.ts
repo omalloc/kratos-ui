@@ -2,38 +2,67 @@ export default [
   {
     path: '/',
     name: '仪表盘',
+    icon: 'icon-dashboard',
     component: './Home',
   },
   {
     path: '/app',
     name: '应用管理',
+    icon: 'icon-app-box',
+    component: './App',
+  },
+  {
+    path: '/services',
+    name: '服务在线',
+    icon: 'icon-service',
+    component: './Services',
+  },
+  {
+    name: '资源管理',
+    path: '/resource',
+    icon: 'icon-resource',
     routes: [
       {
-        path: '/app/:id',
-        name: '应用详情',
-        component: './App',
+        name: '应用',
+        path: '/resource/app',
+        icon: 'icon-app',
+        component: './Resource/Node',
       },
       {
-        path: '/app/:id/configs',
-        name: '应用配置',
-        component: './App/Configs',
+        name: '节点',
+        path: '/resource/node',
+        icon: 'icon-node2',
+        component: './Resource/Node',
+      },
+      {
+        name: '可用区',
+        path: '/resource/zone',
+        icon: 'icon-zone',
+        component: './Resource/Zone',
       },
     ],
   },
+
   {
-    name: '系统管理',
     path: '/admin',
+    name: '系统管理',
+    icon: 'icon-config',
     routes: [
       {
-        name: '可用区管理',
-        path: '/admin/datacenter',
-        component: './Admin/DataCenter',
+        path: '/admin/user',
+        name: '用户',
+        icon: 'user',
       },
       {
-        name: '节点管理',
-        path: '/admin/node',
-        component: './Admin/Node',
+        path: '/admin/role',
+        name: '角色',
+        icon: 'team',
       },
-    ],
+      {
+        path: '/admin/permission',
+        name: '权限',
+        icon: 'verified',
+      }
+    ]
   },
 ];
