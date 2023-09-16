@@ -1,27 +1,23 @@
 import services from '@/services/console';
+import { ZoneList } from '@/services/console/Zone';
+import { mergeData } from '@/utils/pagination';
 import { PlusOutlined } from '@ant-design/icons';
 import {
   ModalForm,
   PageContainer,
+  ProForm,
   ProFormSelect,
   ProFormText,
-  ProForm,
   ProTable,
+  type ActionType,
   type ProColumns,
   type ProFormInstance,
-  type ActionType,
 } from '@ant-design/pro-components';
-import { App, Button, Popconfirm, Tag, Divider } from 'antd';
+import { App, Button, Divider, Popconfirm, Tag } from 'antd';
 import { useRef, useState } from 'react';
+import { envEnum } from '../enum';
 
-const { ZoneGetZoneList, ZoneCreateZone, ZoneUpdateZone, ZoneDeleteZone } = services.Zone;
-
-const envEnum: Record<string, string> = {
-  dev: '开发',
-  test: '测试',
-  qa: 'QA',
-  prod: '生产',
-};
+const { ZoneGet, ZoneCreate, ZoneUpdate, ZoneDelete } = services.Zone;
 
 type ZoneItem = {
   id?: number;
@@ -30,17 +26,24 @@ type ZoneItem = {
   regionName: string;
   regionCode: string;
   env: string;
-}
+};
 
 const DataCenterPage: React.FC = () => {
-  const { message } = App.useApp();
   const actionRef = useRef<ActionType>();
-  const [formData, setFormData] = useState<ZoneItem>();
   const restFormRef = useRef<ProFormInstance>();
+
+  const { message } = App.useApp();
+  const [formData, setFormData] = useState<ZoneItem>();
   const [formVisible, setFormVisible] = useState(false);
 
   const columns: ProColumns[] = [
-    { dataIndex: 'id', title: 'ID', width: '80px', editable: false, hideInSearch: true },
+    {
+      dataIndex: 'id',
+      title: 'ID',
+      width: '80px',
+      editable: false,
+      hideInSearch: true,
+    },
     {
       dataIndex: 'code',
       title: '可用区',
@@ -51,7 +54,7 @@ const DataCenterPage: React.FC = () => {
         </span>
       ),
     },
-    { dataIndex: 'regionName', title: '地区', hideInSearch: true },
+    { dataIndex: 'region_name', title: '地区', hideInSearch: true },
     {
       dataIndex: 'env',
       title: '环境',
@@ -74,7 +77,7 @@ const DataCenterPage: React.FC = () => {
           onClick={() => {
             console.log('option', record);
             setFormVisible(true);
-            setFormData({...record});
+            setFormData({ ...record });
           }}
         >
           编辑
@@ -85,7 +88,7 @@ const DataCenterPage: React.FC = () => {
           title="可用区删除(操作不可逆)"
           description={`要删除 ${record.name} 可用区吗?`}
           onConfirm={async () => {
-            await ZoneDeleteZone({ id: record.id });
+            await ZoneDelete({ id: record.id });
             action?.reload();
           }}
         >
@@ -97,7 +100,6 @@ const DataCenterPage: React.FC = () => {
     },
   ];
 
-  
   return (
     <PageContainer>
       <ProTable
@@ -105,11 +107,11 @@ const DataCenterPage: React.FC = () => {
         columns={columns}
         rowKey="id"
         request={async (params) => {
-          const { data = [], total = 0 } = await ZoneGetZoneList(params);
+          const { data = [], pagination } = await ZoneList(mergeData(params));
           return {
             success: true,
             data: data,
-            total: total,
+            total: pagination?.total,
           };
         }}
         toolBarRender={() => [
@@ -140,12 +142,12 @@ const DataCenterPage: React.FC = () => {
         request={async () => {
           return {
             ...formData,
-          }
+          };
         }}
-        onFinish={async ({ id, ...values}) => {
+        onFinish={async ({ id, ...values }) => {
           // Updated
           if (id > 0) {
-            await ZoneUpdateZone({ id }, values);
+            await ZoneUpdate({ id }, values);
             setFormVisible(false);
             actionRef.current?.reload();
             message.success('更新成功');
@@ -153,9 +155,9 @@ const DataCenterPage: React.FC = () => {
           }
 
           // Created
-          const res = await ZoneCreateZone(values);
+          const res = await ZoneCreate(values);
           console.log('new', res);
-          if (res?.data?.id > 0) {
+          if (res) {
             setFormVisible(false);
             actionRef.current?.reload();
             message.success('创建成功');
@@ -166,8 +168,18 @@ const DataCenterPage: React.FC = () => {
       >
         <ProFormText name="id" hidden />
         <ProForm.Group>
-          <ProFormText rules={[{ required: true }]} width="md" name="name" label="可用区" />
-          <ProFormText rules={[{ required: true }]} width="md" name="code" label="可用区码" />
+          <ProFormText
+            rules={[{ required: true }]}
+            width="md"
+            name="name"
+            label="可用区"
+          />
+          <ProFormText
+            rules={[{ required: true }]}
+            width="md"
+            name="code"
+            label="可用区码"
+          />
           <ProFormSelect
             rules={[{ required: true, message: '请选择一个环境模式' }]}
             width="md"

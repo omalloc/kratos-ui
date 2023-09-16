@@ -1,22 +1,24 @@
 import { getApps } from '@/services/app';
 import { RunTimeLayoutConfig, type RequestConfig } from '@umijs/max';
-import { App } from 'antd';
+import { App, message } from 'antd';
 // 运行时配置
 
 export const request: RequestConfig = {
   timeout: 6000,
   // other axios options you want
   errorConfig: {
-    errorHandler() {},
+    errorHandler(errs, opts) {
+      message.error(errs.message);
+    },
     errorThrower() {},
   },
   responseInterceptors: [
     (response: any) => {
       // const { data } = response;
-      // console.log('response', data);
       // if (response.status <= 206) {
       //   return data;
       // }
+      console.log('response', response);
       return response;
     },
   ],
@@ -53,17 +55,19 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     fixedHeader: true,
     fixSiderbar: true,
     collapsed: true,
+    collapsedWidth: 80,
     collapsedButtonRender: false,
-    iconfontUrl: '//at.alicdn.com/t/c/font_4221036_wwlt59xm5zi.js',
+    siderWidth: 180, // ignored prop.
+    contentWidth: 'Fluid',
+    iconfontUrl: '//at.alicdn.com/t/c/font_4221036_rmx88n3o9u9.js',
     menu: {
       locale: false,
       type: 'group',
       collapsedShowTitle: true,
     },
     appList: transfrom(initialState?.apps || []),
-    // siderWidth: 180, // ignored prop.
     childrenRender(dom) {
-      return <App>{dom}</App>
+      return <App>{dom}</App>;
     },
   };
 };

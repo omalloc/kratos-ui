@@ -5,12 +5,12 @@ export default [
     icon: 'icon-dashboard',
     component: './Home',
   },
-  {
-    path: '/app',
-    name: '应用管理',
-    icon: 'icon-app-box',
-    component: './App',
-  },
+  // {
+  //   path: '/app',
+  //   name: '应用管理',
+  //   icon: 'icon-app-box',
+  //   component: './App',
+  // },
   {
     path: '/services',
     name: '服务在线',
@@ -23,10 +23,20 @@ export default [
     icon: 'icon-resource',
     routes: [
       {
+        path: '',
+        redirect: '/resource/app',
+      },
+      {
+        name: '命名空间',
+        path: '/resource/namespace',
+        icon: 'icon-namespace',
+        component: './Resource/Namespace',
+      },
+      {
         name: '应用',
         path: '/resource/app',
         icon: 'icon-app',
-        component: './Resource/Node',
+        component: './Resource/App',
       },
       {
         name: '节点',
@@ -62,7 +72,7 @@ export default [
         path: '/admin/permission',
         name: '权限',
         icon: 'verified',
-      }
-    ]
+      },
+    ],
   },
 ];

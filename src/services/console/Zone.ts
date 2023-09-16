@@ -2,13 +2,15 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-/** GetZoneList returns a list of zones. The list is sorted by zone id. GET /api/console/zone */
-export async function ZoneGetZoneList(
+/** List returns a list of zones.
+
+ The list is sorted by zone id. GET /api/console/zone */
+export async function ZoneList(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.ZoneGetZoneListParams,
+  params: API.ZoneListParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.rpcStatus>('/api/console/zone', {
+  return request<API.GetZoneListReply>('/api/console/zone', {
     method: 'GET',
     params: {
       ...params,
@@ -17,12 +19,11 @@ export async function ZoneGetZoneList(
   });
 }
 
-/** CreateZone creates a new zone. ... POST /api/console/zone */
-export async function ZoneCreateZone(
-  body: API.resourceCreateZoneRequest,
-  options?: { [key: string]: any },
-) {
-  return request<API.rpcStatus>('/api/console/zone', {
+/** Create creates a new zone.
+
+ ... POST /api/console/zone */
+export async function ZoneCreate(body: API.CreateZoneRequest, options?: { [key: string]: any }) {
+  return request<API.CreateZoneReply>('/api/console/zone', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,36 +33,34 @@ export async function ZoneCreateZone(
   });
 }
 
-/** GetZone returns the zone. Query parameter "id" is required.
-Example: /api/console/zone/1 GET /api/console/zone/${param0} */
-export async function ZoneGetZone(
+/** Get returns the zone.
+
+ Query parameter "id" is required.
+ Example: /api/console/zone/1 GET /api/console/zone/${param0} */
+export async function ZoneGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.ZoneGetZoneParams,
+  params: API.ZoneGetParams,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.rpcStatus>(`/api/console/zone/${param0}`, {
+  return request<API.GetZoneReply>(`/api/console/zone/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
   });
 }
 
-/** UpdateZone updates the zone. ... PUT /api/console/zone/${param0} */
-export async function ZoneUpdateZone(
+/** Update updates the zone.
+
+ ... PUT /api/console/zone/${param0} */
+export async function ZoneUpdate(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.ZoneUpdateZoneParams,
-  body: {
-    name?: string;
-    code?: string;
-    region_name?: string;
-    region_code?: string;
-    env?: string;
-  },
+  params: API.ZoneUpdateParams,
+  body: API.UpdateZoneRequest,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.rpcStatus>(`/api/console/zone/${param0}`, {
+  return request<API.UpdateZoneReply>(`/api/console/zone/${param0}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -72,31 +71,33 @@ export async function ZoneUpdateZone(
   });
 }
 
-/** DeleteZone deletes the zone. ... DELETE /api/console/zone/${param0} */
-export async function ZoneDeleteZone(
+/** Delete deletes the zone.
+
+ ... DELETE /api/console/zone/${param0} */
+export async function ZoneDelete(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.ZoneDeleteZoneParams,
+  params: API.ZoneDeleteParams,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.rpcStatus>(`/api/console/zone/${param0}`, {
+  return request<API.DeleteZoneReply>(`/api/console/zone/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),
   });
 }
 
-/** DisableZone disables the zone. ... POST /api/console/zone/${param0}/disable */
-export async function ZoneDisableZone(
+/** Disable disables the zone.
+
+ ... POST /api/console/zone/${param0}/disable */
+export async function ZoneDisable(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.ZoneDisableZoneParams,
-  body: {
-    remark?: string;
-  },
+  params: API.ZoneDisableParams,
+  body: API.DisableZoneRequest,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.rpcStatus>(`/api/console/zone/${param0}/disable`, {
+  return request<API.DisableZoneReply>(`/api/console/zone/${param0}/disable`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

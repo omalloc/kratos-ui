@@ -1,11 +1,123 @@
-import { PageContainer } from '@ant-design/pro-components';
+import services from '@/services/console';
+import { mergeData } from '@/utils/pagination';
+import {
+  PageContainer,
+  ProTable,
+  type ProColumns,
+} from '@ant-design/pro-components';
+import { Badge, Space, Switch, Tag } from 'antd';
+
+const { DiscoveryOnlineServices } = services.Discovery;
+
+const statusMap = {
+  1: 'UP',
+  2: 'HANG',
+  3: 'DOWN',
+};
+
+type ServiceType = Required<API.ServiceGroup & API.Service>;
+
+const serviceNameRender = ({
+  name,
+  key,
+  hostname,
+  cluster,
+  clusters = [],
+}: ServiceType) => (
+  <span>
+    <strong>{name || key}</strong>
+    <br />
+    <span style={{ color: '#999' }}>
+      {hostname ? (
+        <span>
+          [{cluster}] {key}
+        </span>
+      ) : (
+        <span>[{clusters.join(',')}]</span>
+      )}
+    </span>
+  </span>
+);
 
 const OnlineService: React.FC = () => {
-    return (
-        <PageContainer>
-            <div>Online Service</div>
-        </PageContainer>
-    );
-}
+  const columns: ProColumns[] = [
+    {
+      dataIndex: 'status',
+      title: '状态',
+      valueEnum: statusMap,
+      width: 100,
+      render: (_, { hostname }) =>
+        hostname === '' && <Badge status="success" text={'UP'} />,
+    },
+    {
+      dataIndex: 'name',
+      title: '服务名称',
+      width: 400,
+      render: (_, entity) => serviceNameRender(entity),
+    },
+    {
+      dataIndex: 'count',
+      title: '在线实例',
+      align: 'center',
+      width: 100,
+      hideInSearch: true,
+      render: (_, { children = [] }) =>
+        children.length > 0 && <Tag color="#87d068">{children.length}</Tag>,
+    },
+    { dataIndex: 'hostname', title: '主机', width: 400 },
+    {
+      dataIndex: 'endpoints',
+      title: 'Endpoints',
+      hideInSearch: true,
+      render: (_, { hostname, endpoints }) =>
+        hostname !== '' && (
+          <Space.Compact direction="vertical">
+            {endpoints.map((item: any) => (
+              <div key={item}>{item}</div>
+            ))}
+          </Space.Compact>
+        ),
+    },
+    {
+      key: 'action',
+      title: '操作',
+      width: 120,
+      valueType: 'option',
+      render: (_, { hostname, metadata }) =>
+        hostname !== ''
+          ? [
+              <Switch
+                key="disable_service"
+                checkedChildren="正常服务"
+                unCheckedChildren="屏蔽服务"
+                checked={metadata['hang'] !== 'true'}
+                onChange={(checked) => {
+                  console.log('checked', checked);
+                }}
+              />,
+            ]
+          : null,
+    },
+  ];
+
+  return (
+    <PageContainer>
+      <ProTable
+        rowKey="key"
+        columns={columns}
+        request={async (params) => {
+          const { data } = await DiscoveryOnlineServices(mergeData(params));
+          return {
+            data,
+            success: true,
+          };
+        }}
+        expandable={{
+          expandRowByClick: true,
+        }}
+      />
+    </PageContainer>
+  );
+};
 
 export default OnlineService;
