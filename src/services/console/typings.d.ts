@@ -8,6 +8,16 @@ declare namespace API {
     version?: string;
   };
 
+  type AppCreateReply = {
+    data?: AppInfo;
+  };
+
+  type AppDeleteParams = {
+    id: number;
+  };
+
+  type AppDeleteReply = {};
+
   type AppGetParams = {
     id: number;
   };
@@ -62,6 +72,18 @@ declare namespace API {
     data?: AppInfo[];
   };
 
+  type AppUpdateParams = {
+    id: number;
+  };
+
+  type AppUpdateReply = {
+    data?: AppInfo;
+  };
+
+  type AppUpdateRequest = {
+    id?: number;
+  };
+
   type CreateNodeReply = {
     data?: NodeInfo;
   };
@@ -77,16 +99,6 @@ declare namespace API {
     zone_id?: number;
     /** 环境变量 */
     env?: string;
-  };
-
-  type CreateReply = {
-    data?: NamespaceInfo;
-  };
-
-  type CreateRequest = {
-    name?: string;
-    alias?: string;
-    description?: string;
   };
 
   type CreateZoneReply = {
@@ -105,8 +117,6 @@ declare namespace API {
     /** 环境 */
     env?: string;
   };
-
-  type DeleteReply = {};
 
   type DeleteZoneReply = {};
 
@@ -128,10 +138,6 @@ declare namespace API {
     name?: string;
   };
 
-  type GetReply = {
-    data?: NamespaceInfo;
-  };
-
   type GetZoneListReply = {
     pagination?: Pagination;
     /** 可用区列表 */
@@ -142,17 +148,28 @@ declare namespace API {
     data?: ZoneInfo;
   };
 
-  type ListReply = {
-    pagination?: Pagination;
-    data?: NamespaceInfo[];
+  type NamespaceCreateReply = {
+    data?: NamespaceInfo;
+  };
+
+  type NamespaceCreateRequest = {
+    name?: string;
+    alias?: string;
+    description?: string;
   };
 
   type NamespaceDeleteParams = {
     id: number;
   };
 
+  type NamespaceDeleteReply = {};
+
   type NamespaceGetParams = {
     id: string;
+  };
+
+  type NamespaceGetReply = {
+    data?: NamespaceInfo;
   };
 
   type NamespaceInfo = {
@@ -172,8 +189,24 @@ declare namespace API {
     name?: string;
   };
 
+  type NamespaceListReply = {
+    pagination?: Pagination;
+    data?: NamespaceInfo[];
+  };
+
   type NamespaceUpdateParams = {
     id: number;
+  };
+
+  type NamespaceUpdateReply = {
+    data?: NamespaceInfo;
+  };
+
+  type NamespaceUpdateRequest = {
+    id?: number;
+    name?: string;
+    alias?: string;
+    description?: string;
   };
 
   type NodeInfo = {
@@ -269,6 +302,19 @@ declare namespace API {
     children?: Service[];
   };
 
+  type SimpleListReply = {
+    data?: SimpleZoneInfo[];
+  };
+
+  type SimpleZoneInfo = {
+    /** 可用区ID */
+    id?: number;
+    /** 可用区名称 */
+    name?: string;
+    /** 可用区代码 */
+    code?: string;
+  };
+
   type UpdateNodeReply = {
     data?: NodeInfo;
   };
@@ -286,17 +332,6 @@ declare namespace API {
     env?: string;
     /** 节点ID */
     id?: number;
-  };
-
-  type UpdateReply = {
-    data?: NamespaceInfo;
-  };
-
-  type UpdateRequest = {
-    id?: number;
-    name?: string;
-    alias?: string;
-    description?: string;
   };
 
   type UpdateZoneReply = {};

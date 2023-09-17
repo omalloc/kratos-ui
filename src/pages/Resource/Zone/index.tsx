@@ -17,7 +17,7 @@ import { App, Button, Divider, Popconfirm, Tag } from 'antd';
 import { useRef, useState } from 'react';
 import { envEnum } from '../enum';
 
-const { ZoneGet, ZoneCreate, ZoneUpdate, ZoneDelete } = services.Zone;
+const { ZoneCreate, ZoneUpdate, ZoneDelete } = services.Zone;
 
 type ZoneItem = {
   id?: number;

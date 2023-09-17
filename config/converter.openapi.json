@@ -67,6 +67,34 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "App"
+        ],
+        "operationId": "App_Create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api.console.resource.AppInfo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.AppCreateReply"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/console/app/{id}": {
@@ -93,6 +121,74 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/api.console.resource.AppGetReply"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "App"
+        ],
+        "operationId": "App_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/api.console.resource.AppUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.AppUpdateReply"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "App"
+        ],
+        "operationId": "App_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.AppDeleteReply"
                 }
               }
             }
@@ -215,7 +311,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api.console.resource.ListReply"
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceListReply"
                 }
               }
             }
@@ -231,7 +327,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/api.console.resource.CreateRequest"
+                "$ref": "#/components/schemas/api.console.resource.NamespaceCreateRequest"
               }
             }
           },
@@ -243,7 +339,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api.console.resource.CreateReply"
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceCreateReply"
                 }
               }
             }
@@ -273,7 +369,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api.console.resource.GetReply"
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceGetReply"
                 }
               }
             }
@@ -300,7 +396,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/api.console.resource.UpdateRequest"
+                "$ref": "#/components/schemas/api.console.resource.NamespaceUpdateRequest"
               }
             }
           },
@@ -312,7 +408,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api.console.resource.UpdateReply"
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceUpdateReply"
                 }
               }
             }
@@ -341,7 +437,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/api.console.resource.DeleteReply"
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceDeleteReply"
                 }
               }
             }
@@ -567,6 +663,27 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/api.console.resource.CreateZoneReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/zone/simple": {
+      "get": {
+        "tags": [
+          "Zone"
+        ],
+        "description": "SimpleList returns a simple-list of zones.\n\n The list is sorted by zone create time.",
+        "operationId": "Zone_SimpleList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.SimpleListReply"
                 }
               }
             }
@@ -841,6 +958,18 @@
           }
         }
       },
+      "api.console.resource.AppCreateReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/api.console.resource.AppInfo"
+          }
+        }
+      },
+      "api.console.resource.AppDeleteReply": {
+        "type": "object",
+        "properties": {}
+      },
       "api.console.resource.AppGetReply": {
         "type": "object",
         "properties": {
@@ -945,6 +1074,23 @@
           }
         }
       },
+      "api.console.resource.AppUpdateReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/api.console.resource.AppInfo"
+          }
+        }
+      },
+      "api.console.resource.AppUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "api.console.resource.CreateNodeReply": {
         "type": "object",
         "properties": {
@@ -976,28 +1122,6 @@
           "env": {
             "type": "string",
             "description": "环境变量"
-          }
-        }
-      },
-      "api.console.resource.CreateReply": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
-          }
-        }
-      },
-      "api.console.resource.CreateRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "alias": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
           }
         }
       },
@@ -1034,10 +1158,6 @@
           }
         }
       },
-      "api.console.resource.DeleteReply": {
-        "type": "object",
-        "properties": {}
-      },
       "api.console.resource.DeleteZoneReply": {
         "type": "object",
         "properties": {}
@@ -1057,14 +1177,6 @@
           "remark": {
             "type": "string",
             "description": "备注"
-          }
-        }
-      },
-      "api.console.resource.GetReply": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
           }
         }
       },
@@ -1091,17 +1203,37 @@
           }
         }
       },
-      "api.console.resource.ListReply": {
+      "api.console.resource.NamespaceCreateReply": {
         "type": "object",
         "properties": {
-          "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
-          },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
-            }
+            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
+          }
+        }
+      },
+      "api.console.resource.NamespaceCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "api.console.resource.NamespaceDeleteReply": {
+        "type": "object",
+        "properties": {}
+      },
+      "api.console.resource.NamespaceGetReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
           }
         }
       },
@@ -1125,6 +1257,46 @@
             "type": "string"
           },
           "updated_at": {
+            "type": "string"
+          }
+        }
+      },
+      "api.console.resource.NamespaceListReply": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/api.types.Pagination"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
+            }
+          }
+        }
+      },
+      "api.console.resource.NamespaceUpdateReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
+          }
+        }
+      },
+      "api.console.resource.NamespaceUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "string"
+          },
+          "description": {
             "type": "string"
           }
         }
@@ -1203,6 +1375,36 @@
           }
         }
       },
+      "api.console.resource.SimpleListReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/api.console.resource.SimpleZoneInfo"
+            }
+          }
+        }
+      },
+      "api.console.resource.SimpleZoneInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "可用区ID",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "可用区名称"
+          },
+          "code": {
+            "type": "string",
+            "description": "可用区代码"
+          }
+        },
+        "description": "简单的可用区信息(主要用来枚举展示)"
+      },
       "api.console.resource.UpdateNodeReply": {
         "type": "object",
         "properties": {
@@ -1239,32 +1441,6 @@
             "type": "integer",
             "description": "节点ID",
             "format": "int32"
-          }
-        }
-      },
-      "api.console.resource.UpdateReply": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
-          }
-        }
-      },
-      "api.console.resource.UpdateRequest": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          },
-          "alias": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
           }
         }
       },

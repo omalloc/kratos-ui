@@ -7,7 +7,7 @@ export const request: RequestConfig = {
   timeout: 6000,
   // other axios options you want
   errorConfig: {
-    errorHandler(errs, opts) {
+    errorHandler(errs) {
       message.error(errs.message);
     },
     errorThrower() {},
@@ -18,7 +18,6 @@ export const request: RequestConfig = {
       // if (response.status <= 206) {
       //   return data;
       // }
-      console.log('response', response);
       return response;
     },
   ],

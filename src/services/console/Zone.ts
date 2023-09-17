@@ -107,3 +107,13 @@ export async function ZoneDisable(
     ...(options || {}),
   });
 }
+
+/** SimpleList returns a simple-list of zones.
+
+ The list is sorted by zone create time. GET /api/console/zone/simple */
+export async function ZoneSimpleList(options?: { [key: string]: any }) {
+  return request<API.SimpleListReply>('/api/console/zone/simple', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}

@@ -19,7 +19,7 @@ import { pick } from 'lodash-es';
 import { useState } from 'react';
 import { envEnum } from '../enum';
 const { NodeList, NodeCreate, NodeUpdate } = services.Node;
-const { ZoneList } = services.Zone;
+const { ZoneSimpleList } = services.Zone;
 
 const statusMap: Record<string, { label: string; color: string }> = {
   UNKNOWN: {
@@ -42,9 +42,9 @@ const NodePage: React.FC = () => {
     id: number;
     name?: string;
     ip?: string;
-    autoDetect?: boolean;
+    auto_detect?: boolean;
     env?: string;
-    zoneId?: number;
+    zone_id?: number;
   }>({ id: 0 });
 
   const columns: ProColumns[] = [
@@ -132,7 +132,12 @@ const NodePage: React.FC = () => {
         rowKey="id"
         columns={columns}
         request={async (params) => {
-          return NodeList(mergeData(params));
+          const { data, pagination } = await NodeList(mergeData(params));
+          return {
+            data,
+            success: true,
+            total: pagination?.total,
+          }
         }}
         toolBarRender={() => [
           <Button
@@ -170,7 +175,7 @@ const NodePage: React.FC = () => {
             values.id > 0
               ? await NodeUpdate({ id: values.id }, values)
               : await NodeCreate(values);
-          if (res?.id > 0) {
+          if (res.data) {
             return true;
           }
           return false;
@@ -188,18 +193,18 @@ const NodePage: React.FC = () => {
               label="环境变量"
               valueEnum={envEnum}
             />
-            <ProFormDependency name={['autoDetect']}>
-              {({ autoDetect }) => (
+            <ProFormDependency name={['auto_detect']}>
+              {({ auto_detect }) => (
                 <ProFormText
                   width="sm"
                   name="ip"
                   label="IP"
-                  disabled={autoDetect}
-                  placeholder={autoDetect ? '等待Agent上报' : '请填写'}
+                  disabled={auto_detect}
+                  placeholder={auto_detect ? '等待Agent上报' : '请填写'}
                 />
               )}
             </ProFormDependency>
-            <ProFormCheckbox name="autoDetect" label="自动上报" />
+            <ProFormCheckbox name="auto_detect" label="自动上报" />
           </ProFormGroup>
         </ProFormGroup>
 
@@ -208,13 +213,10 @@ const NodePage: React.FC = () => {
         <ProFormGroup>
           <ProFormSelect
             width="md"
-            name="zoneId"
+            name="zone_id"
             label="绑定到可用区"
             request={async () => {
-              const { data = [] } = await ZoneGetZoneList({
-                page_size: 100,
-                current: 1,
-              });
+              const { data = [] } = await ZoneSimpleList();
               return data.map(({ id, name }) => ({
                 label: name,
                 value: id,

@@ -8,7 +8,7 @@ export async function NamespaceList(
   params: API.NamespaceListParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.ListReply>('/api/console/namespace', {
+  return request<API.NamespaceListReply>('/api/console/namespace', {
     method: 'GET',
     params: {
       ...params,
@@ -18,8 +18,11 @@ export async function NamespaceList(
 }
 
 /** 此处后端没有提供注释 POST /api/console/namespace */
-export async function NamespaceCreate(body: API.CreateRequest, options?: { [key: string]: any }) {
-  return request<API.CreateReply>('/api/console/namespace', {
+export async function NamespaceCreate(
+  body: API.NamespaceCreateRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.NamespaceCreateReply>('/api/console/namespace', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -36,7 +39,7 @@ export async function NamespaceGet(
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.GetReply>(`/api/console/namespace/${param0}`, {
+  return request<API.NamespaceGetReply>(`/api/console/namespace/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
@@ -47,11 +50,11 @@ export async function NamespaceGet(
 export async function NamespaceUpdate(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.NamespaceUpdateParams,
-  body: API.UpdateRequest,
+  body: API.NamespaceUpdateRequest,
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.UpdateReply>(`/api/console/namespace/${param0}`, {
+  return request<API.NamespaceUpdateReply>(`/api/console/namespace/${param0}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -69,7 +72,7 @@ export async function NamespaceDelete(
   options?: { [key: string]: any },
 ) {
   const { id: param0, ...queryParams } = params;
-  return request<API.DeleteReply>(`/api/console/namespace/${param0}`, {
+  return request<API.NamespaceDeleteReply>(`/api/console/namespace/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),
