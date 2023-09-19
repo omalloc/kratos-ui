@@ -1,4 +1,3 @@
-import { getApps } from '@/services/app';
 import { RunTimeLayoutConfig, type RequestConfig } from '@umijs/max';
 import { App, message } from 'antd';
 // 运行时配置
@@ -30,8 +29,7 @@ export async function getInitialState(): Promise<{
   apps?: any[];
   currentApp: string;
 }> {
-  const data = await getApps();
-  return { name: 'Admin', apps: data.apps, currentApp: 'app1' };
+  return { name: 'Admin', apps: [], currentApp: 'app1' };
 }
 
 const transfrom = (apps: any[]) => {
@@ -53,16 +51,26 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     splitMenus: true,
     fixedHeader: true,
     fixSiderbar: true,
-    collapsed: true,
-    collapsedWidth: 80,
+    collapsed: false,
+    // collapsedWidth: 80,
     collapsedButtonRender: false,
     siderWidth: 180, // ignored prop.
     contentWidth: 'Fluid',
-    iconfontUrl: '//at.alicdn.com/t/c/font_4221036_rmx88n3o9u9.js',
+    iconfontUrl: '//at.alicdn.com/t/c/font_4221036_c2wl4klxsj.js',
     menu: {
       locale: false,
       type: 'group',
       collapsedShowTitle: true,
+    },
+    token: {
+      sider: {
+        colorMenuBackground: '#fff',
+        colorMenuItemDivider: '#dfdfdf',
+        colorBgMenuItemHover: '#f6f6f6',
+        colorTextMenu: '#595959',
+        colorTextMenuSelected: '#242424',
+        colorTextMenuActive: '#242424',
+      },
     },
     appList: transfrom(initialState?.apps || []),
     childrenRender(dom) {

@@ -41,6 +41,8 @@ declare namespace API {
     ports?: AppInfoAppPort[];
     /** 应用类型 */
     type?: number;
+    /** 命名空间id */
+    namespace_id?: number;
     /** 应用负责人 */
     users?: string[];
     /** 应用仓库 */
@@ -70,6 +72,10 @@ declare namespace API {
   type AppListReply = {
     pagination?: Pagination;
     data?: AppInfo[];
+  };
+
+  type AppNamespaceAppListParams = {
+    name?: string;
   };
 
   type AppUpdateParams = {
@@ -148,6 +154,20 @@ declare namespace API {
     data?: ZoneInfo;
   };
 
+  type NamespaceApp = {
+    id?: number;
+    name?: string;
+    alias?: string;
+    type?: number;
+    namespace_id?: number;
+    namespace_name?: string;
+    namespace_alias?: string;
+  };
+
+  type NamespaceAppListReply = {
+    data?: NamespaceApp[];
+  };
+
   type NamespaceCreateReply = {
     data?: NamespaceInfo;
   };
@@ -192,6 +212,16 @@ declare namespace API {
   type NamespaceListReply = {
     pagination?: Pagination;
     data?: NamespaceInfo[];
+  };
+
+  type NamespaceSimple = {
+    id?: number;
+    name?: string;
+    alias?: string;
+  };
+
+  type NamespaceSimpleListReply = {
+    data?: NamespaceSimple[];
   };
 
   type NamespaceUpdateParams = {
@@ -283,6 +313,8 @@ declare namespace API {
     hang?: boolean;
     /** 元信息 */
     metadata?: Record<string, any>;
+    /** 命名空间 */
+    namespace?: string;
   };
 
   type ServiceGroup = {
@@ -300,6 +332,8 @@ declare namespace API {
     clusters?: string[];
     /** 同服务，不同实例的数组信息 */
     children?: Service[];
+    /** 命名空间 */
+    namespace?: string;
   };
 
   type SimpleListReply = {

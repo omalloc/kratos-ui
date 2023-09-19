@@ -29,6 +29,21 @@ export async function AppCreate(body: API.AppInfo, options?: { [key: string]: an
   });
 }
 
+/** 此处后端没有提供注释 GET /api/console/app/-/metas */
+export async function AppNamespaceAppList(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.AppNamespaceAppListParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.NamespaceAppListReply>('/api/console/app/-/metas', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 此处后端没有提供注释 GET /api/console/app/${param0} */
 export async function AppGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

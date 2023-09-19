@@ -13,11 +13,12 @@ import {
   TableDropdown,
   type ProColumns,
 } from '@ant-design/pro-components';
-import { Button, Divider, Tag } from 'antd';
+import { Button, Divider, Space, Tag, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { pick } from 'lodash-es';
 import { useState } from 'react';
 import { envEnum } from '../enum';
+const { Text } = Typography;
 const { NodeList, NodeCreate, NodeUpdate } = services.Node;
 const { ZoneSimpleList } = services.Zone;
 
@@ -48,37 +49,51 @@ const NodePage: React.FC = () => {
   }>({ id: 0 });
 
   const columns: ProColumns[] = [
-    { dataIndex: 'id', title: '节点ID', width: '90px', hideInSearch: true },
-    { dataIndex: 'name', title: '节点名称' },
-    { dataIndex: 'ip', title: 'IP' },
-    { dataIndex: 'region_name', title: '地区', hideInSearch: true },
+    {
+      dataIndex: 'name',
+      title: '节点名称',
+      render: (dom, { ip }) => (
+        <Space direction="vertical">
+          <Text strong>{dom}</Text>
+          <Text type="secondary">{ip}</Text>
+        </Space>
+      ),
+    },
     {
       dataIndex: 'zone_name',
-      title: '可用区',
-      render: (_, { zone_id, zone_name }) => `${zone_name}(${zone_id})`,
+      title: '可用区/地区',
+      width: 200,
+      render: (_, { zone_id, zone_name, region_name }) => (
+        <Space direction="vertical">
+          <Text strong>
+            {zone_name} ({zone_id})
+          </Text>
+          <Text type="secondary">{region_name}</Text>
+        </Space>
+      ),
     },
-    { dataIndex: 'env', title: '环境', width: '70px', hideInSearch: true },
+    { dataIndex: 'env', title: '环境', width: 70, hideInSearch: true },
     {
       dataIndex: 'agent_status',
-      title: 'Agent情况',
-      width: '260px',
+      title: 'Agent 状态',
+      width: 180,
       hideInSearch: true,
       render: (_, { agent }) => (
-        <>
+        <Space direction="vertical">
           <Tag color={statusMap[agent.type].color}>
             {statusMap[agent.type].label}
           </Tag>
           <Tag>
             {dayjs(agent.heartbeat_time * 1000).format('YYYY-MM-DD HH:mm:ss')}
           </Tag>
-        </>
+        </Space>
       ),
     },
     {
       dataIndex: 'updated_at',
       title: '更新时间',
-      width: '165px',
-      valueType: 'dateTime',
+      width: 160,
+      valueType: 'fromNow',
       hideInSearch: true,
       renderText: (value) => value * 1000,
     },
@@ -86,7 +101,7 @@ const NodePage: React.FC = () => {
       title: '操作',
       valueType: 'option',
       key: 'option',
-      width: '110px',
+      width: 110,
       render: (_, record) => [
         <a
           key="editable"
@@ -137,7 +152,7 @@ const NodePage: React.FC = () => {
             data,
             success: true,
             total: pagination?.total,
-          }
+          };
         }}
         toolBarRender={() => [
           <Button

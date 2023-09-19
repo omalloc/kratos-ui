@@ -190,8 +190,8 @@ const DataCenterPage: React.FC = () => {
         </ProForm.Group>
         <Divider />
         <ProForm.Group>
-          <ProFormText width="md" name="regionName" label="地区" />
-          <ProFormText width="md" name="regionCode" label="地区代码" />
+          <ProFormText width="md" name="region_name" label="地区" />
+          <ProFormText width="md" name="region_code" label="地区代码" />
         </ProForm.Group>
       </ModalForm>
     </PageContainer>

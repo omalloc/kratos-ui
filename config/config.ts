@@ -45,7 +45,13 @@ export default defineConfig({
    * @description 内置了 babel import 插件
    * @doc https://umijs.org/docs/max/antd#antd
    */
-  antd: {},
+  antd: {
+    // theme: {
+    //   token: {
+    //     borderRadius: '2px',
+    //   },
+    // },
+  },
   /**
    * @name 数据流插件
    * @@doc https://umijs.org/docs/max/data-flow

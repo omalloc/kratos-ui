@@ -32,6 +32,14 @@ export async function NamespaceCreate(
   });
 }
 
+/** 此处后端没有提供注释 GET /api/console/namespace/-/options */
+export async function NamespaceSimpleList(options?: { [key: string]: any }) {
+  return request<API.NamespaceSimpleListReply>('/api/console/namespace/-/options', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** 此处后端没有提供注释 GET /api/console/namespace/${param0} */
 export async function NamespaceGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

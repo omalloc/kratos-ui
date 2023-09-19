@@ -27,16 +27,16 @@ export default [
         redirect: '/resource/app',
       },
       {
-        name: '命名空间',
-        path: '/resource/namespace',
-        icon: 'icon-namespace',
-        component: './Resource/Namespace',
-      },
-      {
         name: '应用',
         path: '/resource/app',
         icon: 'icon-app',
         component: './Resource/App',
+      },
+      {
+        name: '命名空间',
+        path: '/resource/namespace',
+        icon: 'icon-namespace',
+        component: './Resource/Namespace',
       },
       {
         name: '节点',

@@ -15,7 +15,8 @@ import {
   type FormListActionType,
   type ProColumns,
 } from '@ant-design/pro-components';
-import { Button, Space, Typography , App } from 'antd';
+import { useModel } from '@umijs/max';
+import { App, Button, Space, Typography } from 'antd';
 import { useRef, useState } from 'react';
 
 const { Text, Paragraph } = Typography;
@@ -29,10 +30,11 @@ const appType = {
   '3': 'API应用',
   '4': '子服务',
   '5': '未定义',
-}
+};
 
 const AppPage: React.FC = () => {
   const { message } = App.useApp();
+  const { data: namespaceData, idMap: namespaceMap } = useModel('namespace');
   const listActionRef = useRef<FormListActionType<ProtocolSelectValue>>();
   const [formVisible, setFormVisible] = useState(false);
   const columns: ProColumns<API.AppInfo>[] = [
@@ -47,11 +49,13 @@ const AppPage: React.FC = () => {
         </>
       ),
     },
+    { dataIndex: 'namespace_id', title: '命名空间', valueEnum: namespaceMap },
     {
       dataIndex: 'description',
       title: '应用描述',
       width: 400,
       ellipsis: true,
+      hideInSearch: true,
     },
     {
       dataIndex: 'ports',
@@ -131,9 +135,10 @@ const AppPage: React.FC = () => {
         onFinish={async (values) => {
           console.log('onFinish', values);
 
-          const res = values.id > 0 
-          ? await AppUpdate({ id: values.id }, values) 
-          : await AppCreate(values);
+          const res =
+            values.id > 0
+              ? await AppUpdate({ id: values.id }, values)
+              : await AppCreate(values);
           if (res.data) {
             message.success('操作成功');
             return true;
@@ -144,44 +149,76 @@ const AppPage: React.FC = () => {
         }}
       >
         <ProFormText label="应用ID" name="id" hidden />
-        <ProFormText label="应用唯一名(英文)" name="name" required colProps={{ md: 12, xl: 12 }} />
-        <ProFormText label="应用名称" name="alias" colProps={{ md: 12, xl: 12 }} />
+        <ProFormText
+          label="应用唯一名(英文)"
+          name="name"
+          required
+          colProps={{ md: 12, xl: 12 }}
+        />
+        <ProFormText
+          label="应用名称"
+          name="alias"
+          colProps={{ md: 12, xl: 12 }}
+        />
+        <ProFormSelect
+          label="命名空间"
+          name="namespace"
+          options={namespaceData.map((item) => ({
+            label: `${item.alias} (${item.name})`,
+            value: item.name,
+          }))}
+          rules={[{ required: true }]}
+        />
         <ProFormTextArea label="应用描述" name="description" />
         <ProFormGroup>
-        <ProFormSelect 
-            label="应用类型" 
-            name="type" 
-            valueEnum={appType} 
+          <ProFormSelect
+            label="应用类型"
+            name="type"
+            valueEnum={appType}
             colProps={{ md: 8, xl: 8 }}
             required
-            transform={(value, name) => ({[name]: Number.parseInt(value)})}
+            transform={(value, name) => ({ [name]: Number.parseInt(value) })}
           />
-          <ProFormSelect label="应用负责人" mode="multiple" name="users" valueEnum={{ '0': '管理员' }} colProps={{ md: 16, xl: 16 }} />
-          <ProFormText label="应用仓库 Git" name="repos" transform={(value, name) => ({ [name]: value.split(',')})} />
+          <ProFormSelect
+            label="应用负责人"
+            mode="multiple"
+            name="users"
+            valueEnum={{ '0': '管理员' }}
+            colProps={{ md: 16, xl: 16 }}
+          />
+          <ProFormText
+            label="应用仓库 Git"
+            name="repos"
+            transform={(value, name) => ({ [name]: value.split(',') })}
+          />
         </ProFormGroup>
         <ProFormList
-            required
-            label="服务端口(预期)"
-            style={{ width: '500px' }}
-            name="ports"
-            creatorButtonProps={{ position: 'bottom' }}
-            actionRef={listActionRef}
-          >
-            <ProFormGroup size="small">
-              <ProFormSelect
-                required
-                name="protocol"
-                options={[
-                  { label: 'HTTP', value: 1 },
-                  { label: 'gRPC', value: 2 },
-                ]}
-                placeholder="协议"
-                colProps={{ md: 6 }}
-              />
-              <ProFormDigit colProps={{ md: 6 }} name="port" placeholder="端口" />
-              <ProFormText colProps={{ md: 12 }} name="remark" placeholder="协议,端口 备注信息" />
-            </ProFormGroup>
-          </ProFormList>
+          required
+          label="服务端口(预期)"
+          style={{ width: '500px' }}
+          name="ports"
+          creatorButtonProps={{ position: 'bottom' }}
+          actionRef={listActionRef}
+        >
+          <ProFormGroup size="small">
+            <ProFormSelect
+              required
+              name="protocol"
+              options={[
+                { label: 'HTTP', value: 1 },
+                { label: 'gRPC', value: 2 },
+              ]}
+              placeholder="协议"
+              colProps={{ md: 6 }}
+            />
+            <ProFormDigit colProps={{ md: 6 }} name="port" placeholder="端口" />
+            <ProFormText
+              colProps={{ md: 12 }}
+              name="remark"
+              placeholder="协议,端口 备注信息"
+            />
+          </ProFormGroup>
+        </ProFormList>
       </ModalForm>
     </PageContainer>
   );

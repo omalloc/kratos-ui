@@ -97,6 +97,35 @@
         }
       }
     },
+    "/api/console/app/-/metas": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "operationId": "App_NamespaceAppList",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceAppListReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/console/app/{id}": {
       "get": {
         "tags": [
@@ -340,6 +369,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/api.console.resource.NamespaceCreateReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/namespace/-/options": {
+      "get": {
+        "tags": [
+          "Namespace"
+        ],
+        "operationId": "Namespace_SimpleList",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.resource.NamespaceSimpleListReply"
                 }
               }
             }
@@ -894,6 +943,10 @@
               "type": "string"
             },
             "description": "元信息"
+          },
+          "namespace": {
+            "type": "string",
+            "description": "命名空间"
           }
         }
       },
@@ -936,6 +989,10 @@
               "$ref": "#/components/schemas/api.console.discovery.Service"
             },
             "description": "同服务，不同实例的数组信息"
+          },
+          "namespace": {
+            "type": "string",
+            "description": "命名空间"
           }
         }
       },
@@ -1013,6 +1070,11 @@
             "type": "integer",
             "description": "应用类型",
             "format": "enum"
+          },
+          "namespace_id": {
+            "type": "integer",
+            "description": "命名空间id",
+            "format": "int64"
           },
           "users": {
             "type": "array",
@@ -1203,6 +1265,46 @@
           }
         }
       },
+      "api.console.resource.NamespaceApp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "string"
+          },
+          "type": {
+            "type": "integer",
+            "format": "enum"
+          },
+          "namespace_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespace_name": {
+            "type": "string"
+          },
+          "namespace_alias": {
+            "type": "string"
+          }
+        }
+      },
+      "api.console.resource.NamespaceAppListReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/api.console.resource.NamespaceApp"
+            }
+          }
+        }
+      },
       "api.console.resource.NamespaceCreateReply": {
         "type": "object",
         "properties": {
@@ -1271,6 +1373,32 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/api.console.resource.NamespaceInfo"
+            }
+          }
+        }
+      },
+      "api.console.resource.NamespaceSimple": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "alias": {
+            "type": "string"
+          }
+        }
+      },
+      "api.console.resource.NamespaceSimpleListReply": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/api.console.resource.NamespaceSimple"
             }
           }
         }

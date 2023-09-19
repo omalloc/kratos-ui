@@ -5,7 +5,8 @@ import {
   ProTable,
   type ProColumns,
 } from '@ant-design/pro-components';
-import { Badge, Space, Switch, Tag } from 'antd';
+import { useModel } from '@umijs/max';
+import { Badge, Popover, Space, Switch, Tag } from 'antd';
 
 const { DiscoveryOnlineServices } = services.Discovery;
 
@@ -17,15 +18,14 @@ const statusMap = {
 
 type ServiceType = Required<API.ServiceGroup & API.Service>;
 
-const serviceNameRender = ({
-  name,
-  key,
-  hostname,
-  cluster,
-  clusters = [],
-}: ServiceType) => (
+const serviceNameRender = (
+  { name, namespace, key, hostname, cluster, clusters = [] }: ServiceType,
+  namespaceMap: Record<string, string>,
+) => (
   <span>
-    <strong>{name || key}</strong>
+    <Badge dot={namespaceMap[namespace] === undefined} offset={[6, 0]}>
+      <strong>{name || key}</strong>
+    </Badge>
     <br />
     <span style={{ color: '#999' }}>
       {hostname ? (
@@ -33,13 +33,47 @@ const serviceNameRender = ({
           [{cluster}] {key}
         </span>
       ) : (
-        <span>[{clusters.join(',')}]</span>
+        <span>[{clusters.join(',')}] </span>
       )}
     </span>
   </span>
 );
 
+const namespaceRender = ({ namespace, hostname }, namespaceMap) => {
+  if (hostname) {
+    return null;
+  }
+  if (!namespaceMap[namespace]) {
+    return (
+      <Popover
+        placement="topRight"
+        content={
+          <Space direction="vertical">
+            <span>
+              无法找到命名空间：<strong>{namespace}</strong>
+            </span>
+            <span>已有命名空间：</span>
+            {Object.keys(namespaceMap).map((item) => (
+              <span style={{ paddingLeft: 12 }} key="item">
+                {item}
+              </span>
+            ))}
+          </Space>
+        }
+      >
+        <Tag color="red">命名空间绑定异常</Tag>
+      </Popover>
+    );
+  }
+
+  const color = namespaceMap[namespace] ? 'green' : 'red';
+
+  return <Tag color={color}>{namespaceMap[namespace]}</Tag>;
+};
+
 const OnlineService: React.FC = () => {
+  const { nameMap: namespaceMap } = useModel('namespace');
+
   const columns: ProColumns[] = [
     {
       dataIndex: 'status',
@@ -53,7 +87,13 @@ const OnlineService: React.FC = () => {
       dataIndex: 'name',
       title: '服务名称',
       width: 400,
-      render: (_, entity) => serviceNameRender(entity),
+      render: (_, entity) => serviceNameRender(entity, namespaceMap),
+    },
+    {
+      dataIndex: 'namespace',
+      title: '命名空间',
+      width: 220,
+      render: (_, entity) => namespaceRender(entity, namespaceMap),
     },
     {
       dataIndex: 'count',
