@@ -25,7 +25,6 @@ const useAppModel = () => {
         acc[getAppKey(cur.name, cur.namespace_name)] = cur;
         return acc;
       }, {} as AppModel);
-      console.table(result);
       setData(result);
     } finally {
       setLoading(false);

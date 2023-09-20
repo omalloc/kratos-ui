@@ -22,7 +22,7 @@ const useNamespaceModel = () => {
       data.reduce(
         (pre, cur) => {
           if (cur.name) {
-            pre[cur.name] = `${cur.alias} (${cur.name})`;
+            pre[cur.name] = cur.alias || '';
           }
           return pre;
         },

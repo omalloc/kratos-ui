@@ -12,6 +12,7 @@ import {
   ProFormText,
   ProFormTextArea,
   ProTable,
+  type ActionType,
   type FormListActionType,
   type ProColumns,
 } from '@ant-design/pro-components';
@@ -35,6 +36,7 @@ const appType = {
 const AppPage: React.FC = () => {
   const { message } = App.useApp();
   const { data: namespaceData, idMap: namespaceMap } = useModel('namespace');
+  const actionRef = useRef<ActionType>();
   const listActionRef = useRef<FormListActionType<ProtocolSelectValue>>();
   const [formVisible, setFormVisible] = useState(false);
   const columns: ProColumns<API.AppInfo>[] = [
@@ -53,7 +55,7 @@ const AppPage: React.FC = () => {
     {
       dataIndex: 'description',
       title: '应用描述',
-      width: 400,
+      width: 300,
       ellipsis: true,
       hideInSearch: true,
     },
@@ -61,6 +63,7 @@ const AppPage: React.FC = () => {
       dataIndex: 'ports',
       title: '服务端口(预期)',
       hideInSearch: true,
+      width: 240,
       renderText: (value) => (
         <Space>
           {value.map((item: API.AppInfoAppPort) => (
@@ -82,6 +85,7 @@ const AppPage: React.FC = () => {
     <PageContainer>
       <ProTable
         rowKey="id"
+        actionRef={actionRef}
         columns={columns}
         request={async (params) => {
           const { data = [], pagination } = await AppList(mergeData(params));
@@ -141,6 +145,7 @@ const AppPage: React.FC = () => {
               : await AppCreate(values);
           if (res.data) {
             message.success('操作成功');
+            actionRef.current?.reload();
             return true;
           }
 
@@ -162,7 +167,7 @@ const AppPage: React.FC = () => {
         />
         <ProFormSelect
           label="命名空间"
-          name="namespace"
+          name="namespace_id"
           options={namespaceData.map((item) => ({
             label: `${item.alias} (${item.name})`,
             value: item.name,

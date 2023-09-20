@@ -7,15 +7,17 @@ import {
   ProFormText,
   ProFormTextArea,
   ProList,
+  type ActionType,
 } from '@ant-design/pro-components';
 import { App, Badge, Button, Popconfirm, Space, Tag } from 'antd';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 const { NamespaceList, NamespaceDelete, NamespaceCreate, NamespaceUpdate } =
   services.Namespace;
 
 const NamespacePage: React.FC = () => {
   const { message } = App.useApp();
+  const actionRef = useRef<ActionType>();
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<API.NamespaceInfo>({});
 
@@ -37,6 +39,7 @@ const NamespacePage: React.FC = () => {
   return (
     <PageContainer>
       <ProList<API.NamespaceInfo>
+        actionRef={actionRef}
         headerTitle="命名空间列表"
         showActions="hover"
         grid={{ gutter: 16, column: 3 }}
@@ -136,6 +139,7 @@ const NamespacePage: React.FC = () => {
           if (res.data) {
             message.success('操作成功');
             setFormVisible(false);
+            actionRef.current?.reload();
             return true;
           }
 

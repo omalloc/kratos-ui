@@ -6,7 +6,9 @@ import {
   type ProColumns,
 } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Badge, Popover, Space, Switch, Tag } from 'antd';
+import { Badge, Popover, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+
+const { Text } = Typography;
 
 const { DiscoveryOnlineServices } = services.Discovery;
 
@@ -18,13 +20,36 @@ const statusMap = {
 
 type ServiceType = Required<API.ServiceGroup & API.Service>;
 
+const statusRender = ({ hostname, children = [] }: ServiceType) => {
+  if (!hostname) {
+    return (
+      <Badge
+        status="success"
+        text={
+          <span>
+            UP
+            {children.length > 0 && (
+              <Tooltip title="服务在线实例数">
+                <Tag style={{ marginLeft: 4 }} color="#87d068">
+                  {children.length}
+                </Tag>
+              </Tooltip>
+            )}
+          </span>
+        }
+      />
+    );
+  }
+  return null;
+};
+
 const serviceNameRender = (
-  { name, namespace, key, hostname, cluster, clusters = [] }: ServiceType,
+  { key, name, namespace, hostname, cluster, clusters = [] }: ServiceType,
   namespaceMap: Record<string, string>,
 ) => (
   <span>
     <Badge dot={namespaceMap[namespace] === undefined} offset={[6, 0]}>
-      <strong>{name || key}</strong>
+      <strong>{name}</strong>
     </Badge>
     <br />
     <span style={{ color: '#999' }}>
@@ -39,7 +64,10 @@ const serviceNameRender = (
   </span>
 );
 
-const namespaceRender = ({ namespace, hostname }, namespaceMap) => {
+const namespaceRender = (
+  { namespace, hostname }: ServiceType,
+  namespaceMap: Record<string, string>,
+) => {
   if (hostname) {
     return null;
   }
@@ -54,21 +82,26 @@ const namespaceRender = ({ namespace, hostname }, namespaceMap) => {
             </span>
             <span>已有命名空间：</span>
             {Object.keys(namespaceMap).map((item) => (
-              <span style={{ paddingLeft: 12 }} key="item">
+              <span style={{ paddingLeft: 12 }} key={item}>
                 {item}
               </span>
             ))}
           </Space>
         }
       >
-        <Tag color="red">命名空间绑定异常</Tag>
+        <Tag color="red">命名空间异常</Tag>
       </Popover>
     );
   }
 
   const color = namespaceMap[namespace] ? 'green' : 'red';
 
-  return <Tag color={color}>{namespaceMap[namespace]}</Tag>;
+  return (
+    <Space direction="vertical">
+      <Tag color={color}>{namespaceMap[namespace]}</Tag>
+      <Text type="secondary">{namespace}</Text>
+    </Space>
+  );
 };
 
 const OnlineService: React.FC = () => {
@@ -79,35 +112,32 @@ const OnlineService: React.FC = () => {
       dataIndex: 'status',
       title: '状态',
       valueEnum: statusMap,
-      width: 100,
-      render: (_, { hostname }) =>
-        hostname === '' && <Badge status="success" text={'UP'} />,
+      width: 130,
+      render: (_, entity) => statusRender(entity),
     },
     {
       dataIndex: 'name',
       title: '服务名称',
-      width: 400,
+      width: 300,
       render: (_, entity) => serviceNameRender(entity, namespaceMap),
     },
     {
       dataIndex: 'namespace',
       title: '命名空间',
-      width: 220,
+      width: 150,
+      valueEnum: namespaceMap,
       render: (_, entity) => namespaceRender(entity, namespaceMap),
     },
     {
-      dataIndex: 'count',
-      title: '在线实例',
-      align: 'center',
-      width: 100,
-      hideInSearch: true,
-      render: (_, { children = [] }) =>
-        children.length > 0 && <Tag color="#87d068">{children.length}</Tag>,
+      dataIndex: 'hostname',
+      title: '主机',
+      render: (_, { hostname }) =>
+        hostname ? <Text copyable>{hostname}</Text> : null,
     },
-    { dataIndex: 'hostname', title: '主机', width: 400 },
     {
       dataIndex: 'endpoints',
       title: 'Endpoints',
+      width: 260,
       hideInSearch: true,
       render: (_, { hostname, endpoints }) =>
         hostname !== '' && (
@@ -152,9 +182,7 @@ const OnlineService: React.FC = () => {
             success: true,
           };
         }}
-        expandable={{
-          expandRowByClick: true,
-        }}
+        expandable={{}}
       />
     </PageContainer>
   );
