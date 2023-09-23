@@ -139,6 +139,15 @@ declare namespace API {
     remark?: string;
   };
 
+  type DiscoveryKVGetValueParams = {
+    key?: string;
+    cluster?: string;
+  };
+
+  type DiscoveryKVListKeysParams = {
+    cluster?: string;
+  };
+
   type DiscoveryOnlineServicesParams = {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
@@ -156,6 +165,18 @@ declare namespace API {
 
   type GetZoneReply = {
     data?: ZoneInfo;
+  };
+
+  type KVGetValueReply = {
+    value?: string;
+  };
+
+  type KVListClustersReply = {
+    clusters?: string[];
+  };
+
+  type KVListKeysReply = {
+    keys?: string[];
   };
 
   type NamespaceApp = {

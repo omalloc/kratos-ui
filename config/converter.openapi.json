@@ -304,6 +304,91 @@
         }
       }
     },
+    "/api/console/kv/-/value": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "Discovery_KVGetValue",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.discovery.KVGetValueReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/kv/clusters": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "Discovery_KVListClusters",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.discovery.KVListClustersReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/console/kv/keys": {
+      "get": {
+        "tags": [
+          "Discovery"
+        ],
+        "operationId": "Discovery_KVListKeys",
+        "parameters": [
+          {
+            "name": "cluster",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/api.console.discovery.KVListKeysReply"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/console/namespace": {
       "get": {
         "tags": [
@@ -906,6 +991,36 @@
   },
   "components": {
     "schemas": {
+      "api.console.discovery.KVGetValueReply": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "api.console.discovery.KVListClustersReply": {
+        "type": "object",
+        "properties": {
+          "clusters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "api.console.discovery.KVListKeysReply": {
+        "type": "object",
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "api.console.discovery.OnlineServiceReply": {
         "type": "object",
         "properties": {
