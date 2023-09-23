@@ -53,6 +53,23 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "namespace_id",
+            "in": "query",
+            "description": "命名空间ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "应用名称",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -893,7 +910,7 @@
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
+            "$ref": "#/components/schemas/protobuf.Pagination"
           },
           "data": {
             "type": "array",
@@ -993,6 +1010,10 @@
           "namespace": {
             "type": "string",
             "description": "命名空间"
+          },
+          "is_group": {
+            "type": "boolean",
+            "description": "数据类型"
           }
         }
       },
@@ -1126,7 +1147,7 @@
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
+            "$ref": "#/components/schemas/protobuf.Pagination"
           },
           "data": {
             "type": "array",
@@ -1246,7 +1267,7 @@
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
+            "$ref": "#/components/schemas/protobuf.Pagination"
           },
           "data": {
             "type": "array",
@@ -1360,6 +1381,10 @@
           },
           "updated_at": {
             "type": "string"
+          },
+          "running": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1367,7 +1392,7 @@
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
+            "$ref": "#/components/schemas/protobuf.Pagination"
           },
           "data": {
             "type": "array",
@@ -1493,7 +1518,7 @@
         "type": "object",
         "properties": {
           "pagination": {
-            "$ref": "#/components/schemas/api.types.Pagination"
+            "$ref": "#/components/schemas/protobuf.Pagination"
           },
           "data": {
             "type": "array",
@@ -1649,7 +1674,7 @@
         },
         "description": "可用区"
       },
-      "api.types.Pagination": {
+      "protobuf.Pagination": {
         "type": "object",
         "properties": {
           "current": {

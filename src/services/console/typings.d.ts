@@ -67,6 +67,10 @@ declare namespace API {
     'pagination.page_size'?: number;
     'pagination.total'?: number;
     'pagination.raw_total'?: number;
+    /** 命名空间ID */
+    namespace_id?: number;
+    /** 应用名称 */
+    name?: string;
   };
 
   type AppListReply = {
@@ -199,6 +203,7 @@ declare namespace API {
     description?: string;
     created_at?: string;
     updated_at?: string;
+    running?: number;
   };
 
   type NamespaceListParams = {
@@ -334,6 +339,8 @@ declare namespace API {
     children?: Service[];
     /** 命名空间 */
     namespace?: string;
+    /** 数据类型 */
+    is_group?: boolean;
   };
 
   type SimpleListReply = {

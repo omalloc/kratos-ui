@@ -1,6 +1,6 @@
 import services from '@/services/console';
 import { mergeData } from '@/utils/pagination';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import {
   ModalForm,
   PageContainer,
@@ -35,6 +35,9 @@ const NamespacePage: React.FC = () => {
     setFormData(record);
     setFormVisible(true);
   };
+  const handleReload = () => {
+    actionRef.current?.reload();
+  };
 
   return (
     <PageContainer>
@@ -51,6 +54,12 @@ const NamespacePage: React.FC = () => {
           showSizeChanger: true,
         }}
         toolBarRender={() => [
+          <Button
+            key="reload"
+            icon={<ReloadOutlined />}
+            type="text"
+            onClick={handleReload}
+          />,
           <Button
             key="add"
             type="primary"
@@ -88,12 +97,11 @@ const NamespacePage: React.FC = () => {
             ],
           },
           content: {
-            render: (_, record) => (
+            render: (_, { running = 0 }) => (
               <Space>
                 <Badge status="processing" text="正常" />
                 <span>
-                  在线服务:{' '}
-                  <Badge count={record.service_count || 25} color="#faad14" />
+                  在线服务: <Badge count={running} showZero color="#faad14" />
                 </span>
               </Space>
             ),
@@ -107,6 +115,7 @@ const NamespacePage: React.FC = () => {
               id: item.id,
               alias: item.alias,
               name: item.name,
+              running: item.running,
               avatar:
                 'https://gw.alipayobjects.com/zos/antfincdn/UCSiy1j6jx/xingzhuang.svg',
             })),

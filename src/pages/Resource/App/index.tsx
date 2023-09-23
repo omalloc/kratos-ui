@@ -51,11 +51,16 @@ const AppPage: React.FC = () => {
         </>
       ),
     },
-    { dataIndex: 'namespace_id', title: '命名空间', valueEnum: namespaceMap },
+    {
+      dataIndex: 'namespace_id',
+      title: '命名空间',
+      width: 180,
+      valueEnum: namespaceMap,
+    },
     {
       dataIndex: 'description',
       title: '应用描述',
-      width: 300,
+      width: 200,
       ellipsis: true,
       hideInSearch: true,
     },

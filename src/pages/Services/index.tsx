@@ -20,8 +20,8 @@ const statusMap = {
 
 type ServiceType = Required<API.ServiceGroup & API.Service>;
 
-const statusRender = ({ hostname, children = [] }: ServiceType) => {
-  if (!hostname) {
+const statusRender = ({ is_group, children = [] }: ServiceType) => {
+  if (is_group) {
     return (
       <Badge
         status="success"
@@ -44,7 +44,7 @@ const statusRender = ({ hostname, children = [] }: ServiceType) => {
 };
 
 const serviceNameRender = (
-  { key, name, namespace, hostname, cluster, clusters = [] }: ServiceType,
+  { is_group, key, name, namespace, cluster, clusters = [] }: ServiceType,
   namespaceMap: Record<string, string>,
 ) => (
   <span>
@@ -53,7 +53,7 @@ const serviceNameRender = (
     </Badge>
     <br />
     <span style={{ color: '#999' }}>
-      {hostname ? (
+      {!is_group ? (
         <span>
           [{cluster}] {key}
         </span>
@@ -65,10 +65,10 @@ const serviceNameRender = (
 );
 
 const namespaceRender = (
-  { namespace, hostname }: ServiceType,
+  { namespace, is_group }: ServiceType,
   namespaceMap: Record<string, string>,
 ) => {
-  if (hostname) {
+  if (!is_group) {
     return null;
   }
   if (!namespaceMap[namespace]) {
