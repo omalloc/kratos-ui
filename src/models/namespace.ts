@@ -30,6 +30,19 @@ const useNamespaceModel = () => {
       ),
     [data],
   );
+  const namespaceMap = useMemo(
+    () =>
+      data.reduce(
+        (agg, next) => {
+          if (next.id) {
+            agg[next.id] = next;
+          }
+          return agg;
+        },
+        {} as Record<string, API.NamespaceSimple>,
+      ),
+    [data],
+  );
 
   const refresh = async () => {
     if (loading) {
@@ -53,6 +66,7 @@ const useNamespaceModel = () => {
     data,
     idMap,
     nameMap,
+    namespaceMap,
     loading,
     refresh,
   };

@@ -1,3 +1,4 @@
+import AppModal from '@/pages/Resource/App/AppModal';
 import services from '@/services/console';
 import { mergeData } from '@/utils/pagination';
 import {
@@ -6,7 +7,17 @@ import {
   type ProColumns,
 } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Badge, Popover, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import {
+  Badge,
+  Popconfirm,
+  Popover,
+  Space,
+  Switch,
+  Tag,
+  Tooltip,
+  Typography,
+} from 'antd';
+import { useState } from 'react';
 
 const { Text } = Typography;
 
@@ -65,20 +76,22 @@ const serviceNameRender = (
 );
 
 const namespaceRender = (
-  { namespace, is_group }: ServiceType,
+  record: ServiceType,
   namespaceMap: Record<string, string>,
+  hasAppExist: any,
+  createApp: any,
 ) => {
-  if (!is_group) {
+  if (!record.is_group) {
     return null;
   }
-  if (!namespaceMap[namespace]) {
+  if (!namespaceMap[record.namespace]) {
     return (
       <Popover
         placement="topRight"
         content={
           <Space direction="vertical">
             <span>
-              无法找到命名空间：<strong>{namespace}</strong>
+              无法找到命名空间：<strong>{record.namespace}</strong>
             </span>
             <span>已有命名空间：</span>
             {Object.keys(namespaceMap).map((item) => (
@@ -94,18 +107,47 @@ const namespaceRender = (
     );
   }
 
-  const color = namespaceMap[namespace] ? 'green' : 'red';
+  const exist = hasAppExist(record.name, record.namespace);
+
+  const color = namespaceMap[record.namespace] ? 'green' : 'red';
 
   return (
     <Space direction="vertical">
-      <Tag color={color}>{namespaceMap[namespace]}</Tag>
-      <Text type="secondary">{namespace}</Text>
+      {exist ? (
+        <Tag color={color}>{namespaceMap[record.namespace]}</Tag>
+      ) : (
+        <Popconfirm
+          title="命名空间下无此服务"
+          description="是否为该服务创建应用信息到命名空间下？"
+          trigger="hover"
+          okText="创建"
+          onConfirm={() => {
+            createApp(record);
+          }}
+        >
+          <Tag color="red">{namespaceMap[record.namespace]}</Tag>
+        </Popconfirm>
+      )}
+      <Text type="secondary">{record.namespace}</Text>
     </Space>
   );
 };
 
 const OnlineService: React.FC = () => {
-  const { nameMap: namespaceMap } = useModel('namespace');
+  const { nameMap, namespaceMap } = useModel('namespace');
+  const { hasAppExist } = useModel('app');
+
+  const [formVisible, setFormVisible] = useState(false);
+  const [formData, setFormData] = useState<API.AppInfo | undefined>({});
+
+  const createApp = (record: API.Service) => {
+    setFormVisible(true);
+    setFormData({
+      id: 0,
+      name: record.name,
+      namespace_id: record.namespace,
+    });
+  };
 
   const columns: ProColumns[] = [
     {
@@ -119,14 +161,15 @@ const OnlineService: React.FC = () => {
       dataIndex: 'name',
       title: '服务名称',
       width: 300,
-      render: (_, entity) => serviceNameRender(entity, namespaceMap),
+      render: (_, entity) => serviceNameRender(entity, nameMap),
     },
     {
       dataIndex: 'namespace',
       title: '命名空间',
       width: 150,
-      valueEnum: namespaceMap,
-      render: (_, entity) => namespaceRender(entity, namespaceMap),
+      valueEnum: nameMap,
+      render: (_, entity) =>
+        namespaceRender(entity, nameMap, hasAppExist, createApp),
     },
     {
       dataIndex: 'hostname',
@@ -183,6 +226,15 @@ const OnlineService: React.FC = () => {
           };
         }}
         expandable={{}}
+      />
+
+      <AppModal
+        open={formVisible}
+        formData={formData}
+        onCancel={() => setFormVisible(false)}
+        onOk={() => {
+          setFormVisible(false);
+        }}
       />
     </PageContainer>
   );

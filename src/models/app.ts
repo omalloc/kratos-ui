@@ -13,6 +13,10 @@ const useAppModel = () => {
     return `${name}_${namespace}`;
   };
 
+  const hasAppExist = (name?: string, namespace?: string) => {
+    return !!data[getAppKey(name, namespace)];
+  };
+
   const refresh = async () => {
     if (loading) {
       return;
@@ -40,6 +44,7 @@ const useAppModel = () => {
     loading,
     refresh,
     getAppKey,
+    hasAppExist,
   };
 };
 

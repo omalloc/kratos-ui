@@ -1,25 +1,47 @@
+import type { DataNode } from 'antd/es/tree';
+
 import services from '@/services/console';
 import { PageContainer } from '@ant-design/pro-components';
 import { json } from '@codemirror/lang-json';
-import { githubLight } from '@uiw/codemirror-theme-github';
-import CodeMirror from '@uiw/react-codemirror';
-import { Col, Row, Tree } from 'antd';
-import type { DataNode } from 'antd/es/tree';
+import { githubLightInit } from '@uiw/codemirror-theme-github';
+import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import { Col, Row, Select, Tree, theme } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 
-const { DiscoveryKVListKeys, DiscoveryKVGetValue } = services.Discovery;
+const { getDesignToken } = theme;
+const globalToken = getDesignToken();
+
+const styleTheme = EditorView.baseTheme({
+  '&.cm-editor.cm-focused': {
+    outline: `1px solid ${globalToken.colorPrimaryBorder}`,
+  },
+  '&.cm-editor': {
+    'border-radius': '6px',
+    overflow: 'hidden',
+  },
+});
+
+const { DiscoveryKVListClusters, DiscoveryKVListKeys, DiscoveryKVGetValue } =
+  services.Discovery;
 
 const EtcdPage: React.FC = () => {
-  const [value, setValue] = useState('{"name":"codemirror"}');
+  const [value, setValue] = useState<string | undefined>();
+  const [clusters, setClusters] = useState<string[]>([]); // ['xm-01', 'xm-02']
+  const [currentCluster, setCurrentCluster] = useState<string | undefined>(); // 'xm-01'
   const [treeData, setTreeData] = useState<DataNode[]>([]);
   const onChange = useCallback((val, viewUpdate) => {
     console.log('val:', val);
     setValue(val);
   }, []);
 
-  const loadData = async () => {
-    const res = await DiscoveryKVListKeys({ cluster: 'xm-01' });
-    setTreeData(res.keys!.map((item) => ({ title: item, key: item })));
+  const loadClusters = async () => {
+    const { clusters = [] } = await DiscoveryKVListClusters();
+    setClusters(clusters);
+  };
+
+  const loadData = async (cluster: string) => {
+    const { keys = [] } = await DiscoveryKVListKeys({ cluster });
+    setTreeData(keys.map((item) => ({ title: item, key: item })));
   };
 
   const loadValue = async (key: string) => {
@@ -28,22 +50,44 @@ const EtcdPage: React.FC = () => {
       key: key,
     });
 
-    setValue(res.value || '');
+    try {
+      setValue(JSON.stringify(JSON.parse(res.value || ''), null, 2));
+    } catch {}
   };
 
   useEffect(() => {
-    loadData();
+    loadData(currentCluster!);
+  }, [currentCluster]);
+
+  useEffect(() => {
+    loadClusters();
   }, []);
 
   return (
     <PageContainer>
+      <Row style={{ margin: '12px 0' }}>
+        <Col span={24}>
+          <Select
+            style={{ width: '100%' }}
+            placeholder="选择集群"
+            options={clusters.map((item) => ({
+              label: `集群: ${item}`,
+              value: item,
+            }))}
+            onChange={(value) => {
+              setCurrentCluster(value);
+            }}
+          />
+        </Col>
+      </Row>
       <Row gutter={12}>
         <Col span={8}>
           <Tree
             treeData={treeData}
             onSelect={(selectedKeys) => {
-              console.log('selectedKeys:', selectedKeys);
-              loadValue(selectedKeys[0]);
+              console.log('selectedKeys', selectedKeys);
+              if (selectedKeys.length === 0) return;
+              loadValue(selectedKeys[0].toString());
             }}
             blockNode
             style={{ height: 600, overflow: 'auto' }}
@@ -51,10 +95,14 @@ const EtcdPage: React.FC = () => {
         </Col>
         <Col span={16}>
           <CodeMirror
-            theme={githubLight}
+            theme={githubLightInit({
+              settings: {
+                fontFamily: 'Menlo, Consolas, monospace',
+              },
+            })}
             value={value}
             height="600px"
-            extensions={[json()]}
+            extensions={[styleTheme, json()]}
             onChange={onChange}
           />
         </Col>
