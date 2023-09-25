@@ -21,6 +21,43 @@ const styleTheme = EditorView.baseTheme({
   },
 });
 
+type Data = {
+  title: string;
+  key: string;
+  children?: Data[];
+};
+
+const buildTreeData = (rawData: string[]): Data[] => {
+  const data: Data[] = [];
+
+  for (const path of rawData) {
+    const parts = path.split('/');
+    let currentLevel = data;
+
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+
+      let existingPath: Data | undefined = currentLevel.find(
+        (d) => d.title === part,
+      );
+
+      if (!existingPath) {
+        const newPart: Data = {
+          title: part,
+          key: parts.slice(0, i + 1).join('/'),
+          children: [],
+        };
+        currentLevel.push(newPart);
+        existingPath = newPart;
+      }
+
+      currentLevel = existingPath.children!;
+    }
+  }
+
+  return data;
+};
+
 const { DiscoveryKVListClusters, DiscoveryKVListKeys, DiscoveryKVGetValue } =
   services.Discovery;
 
@@ -41,7 +78,7 @@ const EtcdPage: React.FC = () => {
 
   const loadData = async (cluster: string) => {
     const { keys = [] } = await DiscoveryKVListKeys({ cluster });
-    setTreeData(keys.map((item) => ({ title: item, key: item })));
+    setTreeData(buildTreeData(keys));
   };
 
   const loadValue = async (key: string) => {
