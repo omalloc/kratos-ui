@@ -83,7 +83,7 @@ const AppModal: React.FC<{
       }}
       onFinish={async (values) => {
         console.log('onFinish', values);
-        if (!values.id) {
+        if (values.id === undefined) {
           return false;
         }
 
