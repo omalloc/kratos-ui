@@ -32,59 +32,89 @@ const statusMap = {
 type ServiceType = Required<API.ServiceGroup & API.Service>;
 
 const statusRender = ({ is_group, children = [] }: ServiceType) => {
-  if (is_group) {
-    return (
-      <Badge
-        status="success"
-        text={
-          <span>
-            UP
-            {children.length > 0 && (
-              <Tooltip title="服务在线实例数">
-                <Tag style={{ marginLeft: 4 }} color="#87d068">
-                  {children.length}
-                </Tag>
-              </Tooltip>
-            )}
-          </span>
-        }
-      />
-    );
+  if (!is_group) {
+    return null;
   }
-  return null;
+  return (
+    <Badge
+      status="success"
+      text={
+        <span>
+          UP
+          {children.length > 0 && (
+            <Tooltip title="服务在线实例数">
+              <Tag style={{ marginLeft: 4 }} color="#87d068">
+                {children.length}
+              </Tag>
+            </Tooltip>
+          )}
+        </span>
+      }
+    />
+  );
 };
 
-const serviceNameRender = (
-  { is_group, key, name, namespace, cluster, clusters = [] }: ServiceType,
-  namespaceMap: Record<string, string>,
-) => (
-  <span>
-    <Badge dot={namespaceMap[namespace] === undefined} offset={[6, 0]}>
-      <strong>{name}</strong>
-    </Badge>
-    <br />
-    <span style={{ color: '#999' }}>
-      {!is_group ? (
-        <span>
-          [{cluster}] {key}
-        </span>
+const serviceNameRender = ({
+  record: { is_group, key, name, namespace, cluster, clusters = [] },
+  nameMap,
+  hasAppExist,
+  createApp,
+}: any) => {
+  // 服务是否在集群应用信息中存在
+  // 必要条件， 应用名称_命名空间
+  const exist = hasAppExist(name, namespace);
+
+  const dom = (
+    <>
+      <Badge dot={nameMap[namespace] === undefined} offset={[6, 0]}>
+        <strong style={exist ? {} : { color: 'red' }}>{name}</strong>
+      </Badge>
+      <br />
+      <span style={{ color: '#999' }}>
+        {!is_group ? (
+          <span>
+            [{cluster}] {key}
+          </span>
+        ) : (
+          <span>[{clusters.join(',')}] </span>
+        )}
+      </span>
+    </>
+  );
+
+  return (
+    <span>
+      {exist ? (
+        dom
       ) : (
-        <span>[{clusters.join(',')}] </span>
+        <Popconfirm
+          title="服务信息不完整"
+          description="是否为该服务创建应用信息到命名空间下？"
+          trigger="hover"
+          okText="创建"
+          onConfirm={() => {
+            createApp({ name, namespace });
+          }}
+        >
+          {dom}
+        </Popconfirm>
       )}
     </span>
-  </span>
-);
+  );
+};
 
-const namespaceRender = (
-  record: ServiceType,
-  namespaceMap: Record<string, string>,
-  hasAppExist: any,
-  createApp: any,
-) => {
+type Namespace = {
+  record: ServiceType;
+  nameMap: Record<string, string>;
+  // hasAppExist: (name: string, namespace: string) => boolean;
+  // createApp: (record: ServiceType) => void;
+};
+
+const namespaceRender = ({ record, nameMap }: Namespace) => {
   if (!record.is_group) {
     return null;
   }
-  if (!namespaceMap[record.namespace]) {
+  if (!nameMap[record.namespace]) {
     return (
       <Popover
         placement="topRight"
@@ -94,7 +124,7 @@ const namespaceRender = (
               无法找到命名空间：<strong>{record.namespace}</strong>
             </span>
             <span>已有命名空间：</span>
-            {Object.keys(namespaceMap).map((item) => (
+            {Object.keys(nameMap).map((item) => (
               <span style={{ paddingLeft: 12 }} key={item}>
                 {item}
               </span>
@@ -107,45 +137,29 @@ const namespaceRender = (
     );
   }
 
-  const exist = hasAppExist(record.name, record.namespace);
-
-  const color = namespaceMap[record.namespace] ? 'green' : 'red';
+  const color = nameMap[record.namespace] ? 'green' : 'red';
 
   return (
     <Space direction="vertical">
-      {exist ? (
-        <Tag color={color}>{namespaceMap[record.namespace]}</Tag>
-      ) : (
-        <Popconfirm
-          title="命名空间下无此服务"
-          description="是否为该服务创建应用信息到命名空间下？"
-          trigger="hover"
-          okText="创建"
-          onConfirm={() => {
-            createApp(record);
-          }}
-        >
-          <Tag color="red">{namespaceMap[record.namespace]}</Tag>
-        </Popconfirm>
-      )}
+      <Tag color={color}>{nameMap[record.namespace]}</Tag>
       <Text type="secondary">{record.namespace}</Text>
     </Space>
   );
 };
 
 const OnlineService: React.FC = () => {
-  const { nameMap, namespaceMap } = useModel('namespace');
+  const { nameMap, dataMap } = useModel('namespace');
   const { hasAppExist } = useModel('app');
 
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<API.AppInfo | undefined>({});
 
-  const createApp = (record: API.Service) => {
+  const createApp = (record: Required<API.Service>) => {
     setFormVisible(true);
     setFormData({
       id: 0,
       name: record.name,
-      namespace_id: record.namespace,
+      namespace_id: dataMap[record.namespace]?.id,
     });
   };
 
@@ -161,15 +175,20 @@ const OnlineService: React.FC = () => {
       dataIndex: 'name',
       title: '服务名称',
       width: 300,
-      render: (_, entity) => serviceNameRender(entity, nameMap),
+      render: (_, record) =>
+        serviceNameRender({
+          record,
+          nameMap,
+          hasAppExist,
+          createApp,
+        }),
     },
     {
       dataIndex: 'namespace',
       title: '命名空间',
       width: 150,
       valueEnum: nameMap,
-      render: (_, entity) =>
-        namespaceRender(entity, nameMap, hasAppExist, createApp),
+      render: (_, record) => namespaceRender({ record, nameMap }),
     },
     {
       dataIndex: 'hostname',
@@ -182,8 +201,8 @@ const OnlineService: React.FC = () => {
       title: 'Endpoints',
       width: 260,
       hideInSearch: true,
-      render: (_, { hostname, endpoints }) =>
-        hostname !== '' && (
+      render: (_, { is_group, endpoints }) =>
+        !is_group && (
           <Space.Compact direction="vertical">
             {endpoints.map((item: any) => (
               <div key={item}>{item}</div>
@@ -196,20 +215,18 @@ const OnlineService: React.FC = () => {
       title: '操作',
       width: 120,
       valueType: 'option',
-      render: (_, { hostname, metadata }) =>
-        hostname !== ''
-          ? [
-              <Switch
-                key="disable_service"
-                checkedChildren="正常服务"
-                unCheckedChildren="屏蔽服务"
-                checked={metadata['hang'] !== 'true'}
-                onChange={(checked) => {
-                  console.log('checked', checked);
-                }}
-              />,
-            ]
-          : null,
+      render: (_, { is_group, metadata }) =>
+        !is_group && [
+          <Switch
+            key="disable_service"
+            checkedChildren="正常服务"
+            unCheckedChildren="屏蔽服务"
+            checked={metadata['hang'] !== 'true'}
+            onChange={(checked) => {
+              console.log('checked', checked);
+            }}
+          />,
+        ],
     },
   ];
 

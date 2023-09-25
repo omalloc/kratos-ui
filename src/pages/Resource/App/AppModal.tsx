@@ -12,7 +12,7 @@ import {
 } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
 import { App } from 'antd';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 const { AppCreate, AppUpdate } = services.App;
 
@@ -39,6 +39,15 @@ const AppModal: React.FC<{
   const listActionRef = useRef<FormListActionType<ProtocolSelectValue>>();
   const { message } = App.useApp();
   const { data: namespaceData } = useModel('namespace');
+
+  const namespaceEnum = useMemo(
+    () =>
+      namespaceData.map((item) => ({
+        label: `${item.alias} (${item.name})`,
+        value: item.id,
+      })),
+    [namespaceData],
+  );
 
   return (
     <ModalForm
@@ -74,6 +83,9 @@ const AppModal: React.FC<{
       }}
       onFinish={async (values) => {
         console.log('onFinish', values);
+        if (!values.id) {
+          return false;
+        }
 
         const res =
           values.id > 0
@@ -104,10 +116,7 @@ const AppModal: React.FC<{
       <ProFormSelect
         label="命名空间"
         name="namespace_id"
-        options={namespaceData.map((item) => ({
-          label: `${item.alias} (${item.name})`,
-          value: item.name,
-        }))}
+        options={namespaceEnum}
         rules={[{ required: true }]}
       />
       <ProFormTextArea label="应用描述" name="description" />
