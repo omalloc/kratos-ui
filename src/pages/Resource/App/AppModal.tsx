@@ -38,6 +38,7 @@ const AppModal: React.FC<{
 }) => {
   const listActionRef = useRef<FormListActionType<ProtocolSelectValue>>();
   const { message } = App.useApp();
+  const { refresh: refreshApps } = useModel('app');
   const { data: namespaceData } = useModel('namespace');
 
   const namespaceEnum = useMemo(
@@ -93,6 +94,8 @@ const AppModal: React.FC<{
             : await AppCreate(values);
         if (res.data) {
           message.success('操作成功');
+          // 刷新 app 全局数据
+          refreshApps();
           onOk();
           return true;
         }
@@ -105,6 +108,7 @@ const AppModal: React.FC<{
       <ProFormText
         label="应用唯一名(英文)"
         name="name"
+        w
         required
         colProps={{ md: 12, xl: 12 }}
       />

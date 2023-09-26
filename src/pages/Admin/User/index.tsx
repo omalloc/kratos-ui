@@ -1,14 +1,185 @@
 import {
+  ModalForm,
   PageContainer,
+  ProFormGroup,
+  ProFormSelect,
+  ProFormText,
   ProTable,
   type ProColumns,
 } from '@ant-design/pro-components';
+import { App, Badge, Divider, Space, Typography } from 'antd';
+import { useState } from 'react';
+
+type User = {
+  id: string;
+  username: string;
+  password: string;
+  nickname: string;
+  email: string;
+  disabled: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+const UserModal: React.FC<{
+  open: boolean;
+  onCancel?: () => void;
+  onOk?: () => void;
+}> = ({ open, onCancel, onOk }) => {
+  return (
+    <ModalForm<User>
+      open={open}
+      title="用户配置"
+      width={600}
+      grid={true}
+      rowProps={{
+        gutter: [16, 0],
+      }}
+      modalProps={{
+        destroyOnClose: true,
+        onCancel,
+      }}
+    >
+      <ProFormText name="id" hidden />
+      <ProFormGroup style={{ marginTop: '24px' }}>
+        <ProFormText
+          name="username"
+          label="用户名"
+          colProps={{ md: 12, xl: 12 }}
+          rules={[{ required: true }]}
+        />
+        <ProFormText
+          name="nickname"
+          label="昵称"
+          colProps={{ md: 12, xl: 12 }}
+        />
+      </ProFormGroup>
+      <ProFormText name="email" label="电子邮箱" rules={[{ required: true }]} />
+      <ProFormGroup>
+        <ProFormText.Password
+          name="password"
+          label="密码"
+          rules={[{ required: true }]}
+        />
+        <ProFormText.Password
+          name="re_password"
+          label="确认密码"
+          rules={[{ required: true }]}
+        />
+      </ProFormGroup>
+      <Divider />
+      <ProFormGroup>
+        <ProFormSelect
+          name="role"
+          label="角色"
+          mode="multiple"
+          options={[
+            { label: '管理员', value: '1' },
+            { label: '某角色1', value: '2' },
+            { label: '某角色2', value: '3' },
+          ]}
+        />
+        <ProFormSelect
+          name="namespace"
+          label="授权命名空间"
+          mode="multiple"
+          options={[
+            { label: '默认命名空间', value: '1' },
+            { label: 'BLB命名空间', value: '2' },
+            { label: '某命名空间1', value: '3' },
+            { label: '某命名空间2', value: '4' },
+          ]}
+        />
+      </ProFormGroup>
+    </ModalForm>
+  );
+};
 
 const UserPage: React.FC = () => {
-  const columns: ProColumns[] = [];
+  const { message } = App.useApp();
+  const [open, setOpen] = useState(false);
+
+  const handleUpdateStatus = (id: string, disabled: boolean) => {
+    message.info(`用户状态 -> ${disabled ? '禁用' : '正常'}`);
+  };
+
+  const columns: ProColumns<User>[] = [
+    {
+      dataIndex: 'id',
+      title: 'ID',
+      width: 90,
+      hideInSearch: true,
+    },
+    {
+      dataIndex: 'username',
+      title: '用户名',
+      render: (dom, record) => (
+        <Space direction="vertical">
+          <span>{dom}</span>
+          <Typography.Text type="secondary">{record.nickname}</Typography.Text>
+        </Space>
+      ),
+    },
+    { dataIndex: 'email', title: '邮箱' },
+    {
+      key: 'status',
+      title: '状态',
+      render: (_, { disabled = false }) => (
+        <Badge
+          status={disabled ? 'error' : 'processing'}
+          text={disabled ? '禁止登录' : '正常'}
+        />
+      ),
+    },
+    {
+      key: 'option',
+      title: '操作',
+      valueType: 'option',
+      width: 120,
+      render: (_, record) => [
+        <a
+          key="edit"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          编辑
+        </a>,
+        <a
+          key="disabled"
+          onClick={() => handleUpdateStatus(record.id, !record.disabled)}
+        >
+          禁用
+        </a>,
+      ],
+    },
+  ];
   return (
     <PageContainer>
-      <ProTable />
+      <ProTable<User>
+        columns={columns}
+        dataSource={[
+          {
+            id: '1',
+            username: 'admin',
+            password: 'admin',
+            nickname: '管理员',
+            email: 'admin@localhost',
+            disabled: false,
+            created_at: '2021-01-01 00:00:00',
+            updated_at: '2021-01-01 00:00:00',
+          },
+        ]}
+      />
+
+      <UserModal
+        open={open}
+        onCancel={() => setOpen(false)}
+        onOk={() => {
+          // reload and close modal
+          setOpen(false);
+        }}
+      />
     </PageContainer>
   );
 };

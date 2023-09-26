@@ -65,9 +65,14 @@ export default [
     icon: 'icon-config',
     routes: [
       {
+        path: '',
+        redirect: '/admin/user',
+      },
+      {
         path: '/admin/user',
         name: '用户',
         icon: 'user',
+        component: './Admin/User',
       },
       {
         path: '/admin/role',
