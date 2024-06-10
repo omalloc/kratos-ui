@@ -2,13 +2,20 @@ import {
   ModalForm,
   PageContainer,
   ProFormGroup,
+  ProFormRadio,
   ProFormSelect,
   ProFormText,
   ProTable,
   type ProColumns,
 } from '@ant-design/pro-components';
-import { App, Badge, Divider, Space, Typography } from 'antd';
+import { App, Badge, Divider, Space, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
+
+type UserNamespace = {
+  name: string;
+  describe: string;
+  pflag: 'r' | 'rw';
+};
 
 type User = {
   id: string;
@@ -16,6 +23,8 @@ type User = {
   password: string;
   nickname: string;
   email: string;
+  role?: { name: string; describe: string };
+  namespace?: UserNamespace[];
   disabled: boolean;
   created_at: string;
   updated_at: string;
@@ -67,6 +76,15 @@ const UserModal: React.FC<{
           rules={[{ required: true }]}
         />
       </ProFormGroup>
+      <ProFormRadio.Group
+        name="status"
+        label="状态"
+        disabled={true}
+        options={[
+          { label: '启用', value: 1 },
+          { label: '禁用', value: 2 },
+        ]}
+      />
       <Divider />
       <ProFormGroup>
         <ProFormSelect
@@ -113,17 +131,35 @@ const UserPage: React.FC = () => {
     {
       dataIndex: 'username',
       title: '用户名',
+      width: 280,
       render: (dom, record) => (
         <Space direction="vertical">
-          <span>{dom}</span>
-          <Typography.Text type="secondary">{record.nickname}</Typography.Text>
+          <Tooltip title={record.nickname}>
+            <span>{dom}</span>
+          </Tooltip>
+          <Typography.Text type="secondary">{record.email}</Typography.Text>
         </Space>
       ),
     },
-    { dataIndex: 'email', title: '邮箱' },
+    {
+      key: 'describe',
+      title: '可访问资源及命名空间',
+      hideInSearch: true,
+      render: (_, { role, namespace }) => {
+        return (
+          <Space direction="vertical">
+            <span>{role?.describe}</span>
+            <Typography.Text type="secondary">
+              {namespace?.map((item) => item.name).join(',')}
+            </Typography.Text>
+          </Space>
+        );
+      },
+    },
     {
       key: 'status',
       title: '状态',
+      width: 120,
       render: (_, { disabled = false }) => (
         <Badge
           status={disabled ? 'error' : 'processing'}
@@ -145,6 +181,7 @@ const UserPage: React.FC = () => {
         >
           编辑
         </a>,
+        <Divider key="split_1" type="vertical" />,
         <a
           key="disabled"
           onClick={() => handleUpdateStatus(record.id, !record.disabled)}
@@ -163,8 +200,12 @@ const UserPage: React.FC = () => {
             id: '1',
             username: 'admin',
             password: 'admin',
-            nickname: '管理员',
+            nickname: '我是管理员',
             email: 'admin@localhost',
+            role: { name: 'admin', describe: '管理员' },
+            namespace: [
+              { name: 'default', describe: '默认命名空间', pflag: 'rw' },
+            ],
             disabled: false,
             created_at: '2021-01-01 00:00:00',
             updated_at: '2021-01-01 00:00:00',

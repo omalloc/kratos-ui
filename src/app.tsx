@@ -1,13 +1,13 @@
 import { RunTimeLayoutConfig, type RequestConfig } from '@umijs/max';
-import { App, message } from 'antd';
+import { App } from 'antd';
 // 运行时配置
 
 export const request: RequestConfig = {
   timeout: 6000,
   // other axios options you want
   errorConfig: {
-    errorHandler(errs) {
-      message.error(errs.message);
+    errorHandler() {
+      // message.error(errs.message);
     },
     errorThrower() {},
   },
@@ -25,11 +25,12 @@ export const request: RequestConfig = {
 // 全局初始化数据配置，用于 Layout 用户信息和权限初始化
 // 更多信息见文档：https://umijs.org/docs/api/runtime-config#getinitialstate
 export async function getInitialState(): Promise<{
+  collapsed: boolean;
   name: string;
   apps?: any[];
   currentApp: string;
 }> {
-  return { name: 'Admin', apps: [], currentApp: 'app1' };
+  return { collapsed: false, name: 'Admin', apps: [], currentApp: 'app1' };
 }
 
 const transfrom = (apps: any[]) => {
@@ -42,16 +43,24 @@ const transfrom = (apps: any[]) => {
   });
 };
 
-export const layout: RunTimeLayoutConfig = ({ initialState }) => {
+export const layout: RunTimeLayoutConfig = ({
+  initialState,
+  setInitialState,
+}) => {
   return {
     logo: '/logo.svg',
     title: '',
     layout: 'mix',
-    navTheme: 'light',
+    navTheme: 'light', // 'realDark', // 'light',
+    colorPrimary: '#2F54EB',
     splitMenus: true,
     fixedHeader: true,
     fixSiderbar: true,
-    collapsed: false,
+    collapsed: initialState?.collapsed,
+    onCollapse: (collapsed: boolean) => {
+      console.log('onCollapse', collapsed);
+      setInitialState({ ...initialState, collapsed: collapsed });
+    },
     // collapsedWidth: 80,
     collapsedButtonRender: false,
     siderWidth: 180, // ignored prop.
@@ -59,18 +68,18 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     iconfontUrl: '//at.alicdn.com/t/c/font_4221036_c2wl4klxsj.js',
     menu: {
       locale: false,
-      type: 'group',
-      collapsedShowTitle: true,
+      // type: 'group',
+      // collapsedShowTitle: true,
     },
     token: {
-      sider: {
-        colorMenuBackground: '#fff',
-        colorMenuItemDivider: '#dfdfdf',
-        colorBgMenuItemHover: '#f6f6f6',
-        colorTextMenu: '#595959',
-        colorTextMenuSelected: '#242424',
-        colorTextMenuActive: '#242424',
-      },
+      // sider: {
+      //   colorMenuBackground: '#fff',
+      //   colorMenuItemDivider: '#dfdfdf',
+      //   colorBgMenuItemHover: '#f6f6f6',
+      //   colorTextMenu: '#595959',
+      //   colorTextMenuSelected: '#242424',
+      //   colorTextMenuActive: '#242424',
+      // },
     },
     appList: transfrom(initialState?.apps || []),
     childrenRender(dom) {

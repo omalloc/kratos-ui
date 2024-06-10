@@ -12,6 +12,12 @@ export default [
     component: './Services',
   },
   {
+    path: '/tracing',
+    name: '链路跟踪',
+    icon: 'icon-service',
+    component: './Tracing',
+  },
+  {
     name: '资源管理',
     path: '/resource',
     icon: 'icon-resource',
@@ -21,8 +27,9 @@ export default [
         redirect: '/resource/app',
       },
       {
-        path: '/resource',
-        name: '业务侧',
+        type: 'group',
+        name: '资源',
+        key: 'resource-data',
         routes: [
           {
             name: '应用',
@@ -51,10 +58,23 @@ export default [
         ],
       },
       {
-        path: '/resource/etcd',
-        name: 'KV-管理',
-        icon: 'icon-code-tag',
-        component: './Resource/Etcd',
+        type: 'group',
+        name: '集群',
+        key: 'cluster-data',
+        routes: [
+          {
+            path: '/resource/etcd',
+            name: 'KV-管理',
+            icon: 'icon-code-tag',
+            component: './Resource/Etcd',
+          },
+          {
+            path: '/resource/conf',
+            name: '配置管理',
+            icon: 'icon-config',
+            component: './Resource/Conf',
+          },
+        ],
       },
     ],
   },
@@ -78,11 +98,13 @@ export default [
         path: '/admin/role',
         name: '角色',
         icon: 'team',
+        component: './Admin/Role',
       },
       {
         path: '/admin/permission',
         name: '权限',
         icon: 'verified',
+        component: './Admin/Permission',
       },
     ],
   },

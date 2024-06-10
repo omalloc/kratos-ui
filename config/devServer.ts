@@ -10,9 +10,14 @@
  * @doc https://umijs.org/docs/guides/proxy
  */
 export default {
-  '/api': {
-    target: 'http://localhost:8010/api',
+  '/api/traces': {
+    target: 'http://localhost:16686/api',
     changeOrigin: true,
-    pathRewrite: { '^/api': '' },
+    pathRewrite: { '^/api/traces': '' },
+  },
+  '/api': {
+    target: 'http://localhost:8010',
+    changeOrigin: true,
+    // pathRewrite: { '^/api': '' },
   },
 };

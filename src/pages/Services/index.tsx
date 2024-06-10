@@ -2,6 +2,7 @@ import AppModal from '@/pages/Resource/App/AppModal';
 import services from '@/services/console';
 import { mergeData } from '@/utils/pagination';
 import {
+  ActionType,
   PageContainer,
   ProTable,
   type ProColumns,
@@ -13,15 +14,19 @@ import {
   Popover,
   Space,
   Switch,
+  Table,
   Tag,
   Tooltip,
   Typography,
+  message,
+  notification,
 } from 'antd';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useStyles } from './styles';
 
 const { Text } = Typography;
 
-const { DiscoveryOnlineServices } = services.Discovery;
+const { DiscoveryOnlineServices, DiscoveryKVUpdateHang } = services.Discovery;
 
 const statusMap = {
   1: 'UP',
@@ -29,7 +34,12 @@ const statusMap = {
   3: 'DOWN',
 };
 
-type ServiceType = Required<API.ServiceGroup & API.Service>;
+type ServiceType = Required<API.ServiceGroup & API.Service & { count: number }>;
+
+type Namespace = {
+  record: ServiceType;
+  nameMap: Record<string, string>;
+};
 
 const statusRender = ({ is_group, children = [] }: ServiceType) => {
   if (!is_group) {
@@ -103,13 +113,6 @@ const serviceNameRender = ({
   );
 };
 
-type Namespace = {
-  record: ServiceType;
-  nameMap: Record<string, string>;
-  // hasAppExist: (name: string, namespace: string) => boolean;
-  // createApp: (record: ServiceType) => void;
-};
-
 const namespaceRender = ({ record, nameMap }: Namespace) => {
   if (!record.is_group) {
     return null;
@@ -147,20 +150,75 @@ const namespaceRender = ({ record, nameMap }: Namespace) => {
   );
 };
 
+const hangActionRender = (
+  callback: (id: string, hang: boolean) => Promise<void>,
+  entity: ServiceType,
+) => {
+  const { id, metadata, count = 1 } = entity;
+  console.log('entity', entity);
+
+  const hangState = metadata['hang'] === 'true';
+  const desc = hangState
+    ? '恢复服务后，该服务会在 5 秒内被集群中的服务消费方加入到后端服务列表中，恢复对外提供服务'
+    : count > 1
+    ? '请注意，禁用后，服务依赖方将无法调用到该服务'
+    : '请注意，服务仅一个实例，禁止发现后将无法访问该服务提供的功能';
+
+  return (
+    <Popconfirm
+      key={id}
+      overlayStyle={{ width: 300 }}
+      placement="topRight"
+      title="变更发现状态"
+      description={desc}
+      onConfirm={async () => callback(id, !(metadata['hang'] === 'true'))}
+    >
+      <Switch
+        key="disable_service"
+        checkedChildren="正常服务"
+        unCheckedChildren="禁止发现"
+        checked={!hangState}
+      />
+    </Popconfirm>
+  );
+};
+
 const OnlineService: React.FC = () => {
+  const { styles } = useStyles();
+
   const { nameMap, dataMap } = useModel('namespace');
   const { hasAppExist } = useModel('app');
 
+  const actionRef = useRef<ActionType>();
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState<API.AppInfo | undefined>({});
 
   const createApp = (record: Required<API.Service>) => {
     setFormVisible(true);
     setFormData({
-      id: 0,
+      id: '0',
       name: record.name,
       namespace_id: dataMap[record.namespace]?.id,
     });
+  };
+
+  const updateHang = async (id: string, hang: boolean) => {
+    try {
+      await DiscoveryKVUpdateHang({ id }, { id, hang });
+      message.success('集群服务状态变更成功');
+      actionRef.current?.reload();
+    } catch (e: any) {
+      if (e.response) {
+        const { message } = e.response?.data || {};
+        notification.error({
+          message: message,
+        });
+        return;
+      }
+      notification.error({
+        message: '集群服务状态变更失败',
+      });
+    }
   };
 
   const columns: ProColumns[] = [
@@ -174,7 +232,8 @@ const OnlineService: React.FC = () => {
     {
       dataIndex: 'name',
       title: '服务名称',
-      width: 300,
+      width: 350,
+      ellipsis: true,
       render: (_, record) =>
         serviceNameRender({
           record,
@@ -188,6 +247,7 @@ const OnlineService: React.FC = () => {
       title: '命名空间',
       width: 150,
       valueEnum: nameMap,
+      initialValue: 'microservices',
       render: (_, record) => namespaceRender({ record, nameMap }),
     },
     {
@@ -215,18 +275,67 @@ const OnlineService: React.FC = () => {
       title: '操作',
       width: 120,
       valueType: 'option',
-      render: (_, { is_group, metadata }) =>
-        !is_group && [
-          <Switch
-            key="disable_service"
-            checkedChildren="正常服务"
-            unCheckedChildren="屏蔽服务"
-            checked={metadata['hang'] !== 'true'}
-            onChange={(checked) => {
-              console.log('checked', checked);
-            }}
-          />,
-        ],
+      render: (_, entity) => {
+        console.log('render entity=', entity);
+        return !entity.is_group && [hangActionRender(updateHang, entity)];
+      },
+    },
+  ];
+  const serviceColumns = [
+    {
+      dataIndex: 'status',
+      width: 178,
+    },
+    {
+      dataIndex: 'name',
+      title: '服务名称',
+      width: 350,
+      ellipsis: true,
+      render: (_, record) =>
+        serviceNameRender({
+          record,
+          nameMap,
+          hasAppExist,
+          createApp,
+        }),
+    },
+    {
+      dataIndex: 'namespace',
+      title: '命名空间',
+      width: 150,
+      valueEnum: nameMap,
+      initialValue: 'microservices',
+      render: (_, record) => namespaceRender({ record, nameMap }),
+    },
+    {
+      dataIndex: 'hostname',
+      title: '主机',
+      render: (_, { hostname }) =>
+        hostname ? <Text copyable>{hostname}</Text> : null,
+    },
+    {
+      dataIndex: 'endpoints',
+      title: 'Endpoints',
+      width: 260,
+      hideInSearch: true,
+      render: (_, { is_group, endpoints }) =>
+        !is_group && (
+          <Space.Compact direction="vertical">
+            {endpoints.map((item: any) => (
+              <div key={item}>{item}</div>
+            ))}
+          </Space.Compact>
+        ),
+    },
+    {
+      key: 'action',
+      title: '操作',
+      width: 120,
+      valueType: 'option',
+      render: (_, entity) => {
+        console.log('render entity=', entity);
+        return !entity.is_group && [hangActionRender(updateHang, entity)];
+      },
     },
   ];
 
@@ -234,6 +343,10 @@ const OnlineService: React.FC = () => {
     <PageContainer>
       <ProTable
         rowKey="key"
+        size="small"
+        indentSize={0}
+        className={styles.serviceRow}
+        actionRef={actionRef}
         columns={columns}
         request={async (params) => {
           const { data } = await DiscoveryOnlineServices(mergeData(params));
@@ -242,7 +355,29 @@ const OnlineService: React.FC = () => {
             success: true,
           };
         }}
-        expandable={{}}
+        expandable={{
+          childrenColumnName: 'un-used',
+          indentSize: 0,
+          expandRowByClick: true,
+          expandedRowRender: ({ children }) => {
+            return (
+              <Table
+                size="small"
+                rowKey="key"
+                columns={serviceColumns}
+                dataSource={children.map((item) => ({
+                  ...item,
+                  count: children.length,
+                }))}
+                headerTitle={false}
+                search={false}
+                options={false}
+                pagination={false}
+                showHeader={false}
+              />
+            );
+          },
+        }}
       />
 
       <AppModal

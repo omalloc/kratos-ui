@@ -3,7 +3,7 @@ declare namespace API {
     /** 部署状态 */
     type?: number;
     /** 上次心跳时间 */
-    heartbeat_time?: number;
+    heartbeat_time?: string;
     /** Agent版本 */
     version?: string;
   };
@@ -13,13 +13,13 @@ declare namespace API {
   };
 
   type AppDeleteParams = {
-    id: number;
+    id: string;
   };
 
   type AppDeleteReply = {};
 
   type AppGetParams = {
-    id: number;
+    id: string;
   };
 
   type AppGetReply = {
@@ -28,7 +28,7 @@ declare namespace API {
 
   type AppInfo = {
     /** 唯一键 */
-    id?: number;
+    id?: string;
     /** 应用名称 */
     name?: string;
     /** 应用别名 */
@@ -42,15 +42,15 @@ declare namespace API {
     /** 应用类型 */
     type?: number;
     /** 命名空间id */
-    namespace_id?: number;
+    namespace_id?: string;
     /** 应用负责人 */
     users?: string[];
     /** 应用仓库 */
     repos?: string[];
     /** 创建时间 */
-    created_at?: number;
+    created_at?: string;
     /** 修改时间 */
-    updated_at?: number;
+    updated_at?: string;
   };
 
   type AppInfoAppPort = {
@@ -66,9 +66,9 @@ declare namespace API {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
     'pagination.total'?: number;
-    'pagination.raw_total'?: number;
+    'pagination.raw_total'?: string;
     /** 命名空间ID */
-    namespace_id?: number;
+    namespace_id?: string;
     /** 应用名称 */
     name?: string;
   };
@@ -83,7 +83,7 @@ declare namespace API {
   };
 
   type AppUpdateParams = {
-    id: number;
+    id: string;
   };
 
   type AppUpdateReply = {
@@ -91,7 +91,7 @@ declare namespace API {
   };
 
   type AppUpdateRequest = {
-    id?: number;
+    id?: string;
   };
 
   type CreateNodeReply = {
@@ -112,6 +112,7 @@ declare namespace API {
   };
 
   type CreateZoneReply = {
+    /** 可用区 */
     data?: ZoneInfo;
   };
 
@@ -148,11 +149,15 @@ declare namespace API {
     cluster?: string;
   };
 
+  type DiscoveryKVUpdateHangParams = {
+    id: string;
+  };
+
   type DiscoveryOnlineServicesParams = {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
     'pagination.total'?: number;
-    'pagination.raw_total'?: number;
+    'pagination.raw_total'?: string;
     /** service name */
     name?: string;
   };
@@ -164,6 +169,7 @@ declare namespace API {
   };
 
   type GetZoneReply = {
+    /** 可用区 */
     data?: ZoneInfo;
   };
 
@@ -179,12 +185,19 @@ declare namespace API {
     keys?: string[];
   };
 
+  type KVUpdateHangReply = {};
+
+  type KVUpdateHangRequest = {
+    id?: string;
+    hang?: boolean;
+  };
+
   type NamespaceApp = {
-    id?: number;
+    id?: string;
     name?: string;
     alias?: string;
     type?: number;
-    namespace_id?: number;
+    namespace_id?: string;
     namespace_name?: string;
     namespace_alias?: string;
   };
@@ -204,7 +217,7 @@ declare namespace API {
   };
 
   type NamespaceDeleteParams = {
-    id: number;
+    id: string;
   };
 
   type NamespaceDeleteReply = {};
@@ -218,7 +231,7 @@ declare namespace API {
   };
 
   type NamespaceInfo = {
-    id?: number;
+    id?: string;
     name?: string;
     alias?: string;
     description?: string;
@@ -231,7 +244,7 @@ declare namespace API {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
     'pagination.total'?: number;
-    'pagination.raw_total'?: number;
+    'pagination.raw_total'?: string;
     name?: string;
   };
 
@@ -241,7 +254,7 @@ declare namespace API {
   };
 
   type NamespaceSimple = {
-    id?: number;
+    id?: string;
     name?: string;
     alias?: string;
   };
@@ -251,7 +264,7 @@ declare namespace API {
   };
 
   type NamespaceUpdateParams = {
-    id: number;
+    id: string;
   };
 
   type NamespaceUpdateReply = {
@@ -259,7 +272,7 @@ declare namespace API {
   };
 
   type NamespaceUpdateRequest = {
-    id?: number;
+    id?: string;
     name?: string;
     alias?: string;
     description?: string;
@@ -272,11 +285,12 @@ declare namespace API {
     name?: string;
     /** 节点IP */
     ip?: string;
+    /** Agent状态 */
     agent?: Agent;
     /** 节点创建时间 */
-    created_at?: number;
+    created_at?: string;
     /** 节点更新时间 */
-    updated_at?: number;
+    updated_at?: string;
     /** 可用区ID */
     zone_id?: number;
     /** 可用区编码 */
@@ -297,7 +311,7 @@ declare namespace API {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
     'pagination.total'?: number;
-    'pagination.raw_total'?: number;
+    'pagination.raw_total'?: string;
   };
 
   type NodeListReply = {
@@ -319,10 +333,11 @@ declare namespace API {
     current?: number;
     page_size?: number;
     total?: number;
-    raw_total?: number;
+    raw_total?: string;
   };
 
   type Service = {
+    id?: string;
     /** 唯一标识 */
     key?: string;
     /** 主机名 */
@@ -451,7 +466,7 @@ declare namespace API {
     'pagination.current'?: number;
     'pagination.page_size'?: number;
     'pagination.total'?: number;
-    'pagination.raw_total'?: number;
+    'pagination.raw_total'?: string;
     /** 查询条件 env 环境变量 */
     env?: string;
     /** 查询条件 status 状态 1=正常，2=禁用 */
