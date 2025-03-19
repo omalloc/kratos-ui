@@ -5,8 +5,8 @@ const { join } = require('path');
 const fs = require('fs');
 
 const basePath = join(__dirname, '../');
-const filePath = join(basePath, 'openapi.yaml');
-const jsonPath = join(basePath, 'converter.openapi.json');
+let filePath = join(basePath, 'openapi.yaml');
+let jsonPath = join(basePath, 'converter.openapi.json');
 
 const logPrefix = '[OpenAPIConverter]:';
 
@@ -18,6 +18,13 @@ const log = (...args: any[]) => {
   }
   console.log(logPrefix, ...rest);
 };
+
+fs.exists(filePath, (exists: boolean) => {
+  if (!exists) {
+    log(false, `🚥 加载 ${filePath} 失败，文件不存在 尝试查找上一级`);
+    filePath = join(basePath, '..', 'openapi.yaml');
+  }
+});
 
 fs.readFile(filePath, 'utf8', (err: Error, raw: any) => {
   if (err) {

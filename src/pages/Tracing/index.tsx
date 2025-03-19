@@ -1,4 +1,10 @@
-import { getOperations, getServices } from '@/services/tracing';
+import {
+  getServiceOperations,
+  getServices,
+  getTraces,
+  type Service,
+} from '@/services/tracing';
+import { formatDate, formatTime } from '@/utils/format';
 import {
   PageContainer,
   ProForm,
@@ -6,9 +12,11 @@ import {
   ProFormSelect,
   ProFormText,
 } from '@ant-design/pro-components';
-import { Card, Col, Row } from 'antd';
+import { Card, Col, Row, Tabs } from 'antd';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import SearchResults from './SearchResults';
+import { useStyles } from './style';
 
 const lookbackOptions = [
   {
@@ -77,18 +85,97 @@ const lookbackOptions = [
   },
 ];
 
-const SearchPlan: React.FC<{
+export function lookbackToTimestamp(lookback: string, from: Date) {
+  const unit = lookback.substr(-1);
+  return dayjs(from).subtract(parseInt(lookback, 10), unit).valueOf() * 1000;
+}
+
+export function getUnixTimeStampInMSFromForm({
+  startDate,
+  startDateTime,
+  endDate,
+  endDateTime,
+}: {
+  [key: string]: string;
+}) {
+  const start = `${startDate} ${startDateTime}`;
+  const end = `${endDate} ${endDateTime}`;
+  return {
+    start: `${dayjs(start, 'YYYY-MM-DD HH:mm').valueOf()}000`,
+    end: `${dayjs(end, 'YYYY-MM-DD HH:mm').valueOf()}000`,
+  };
+}
+
+export function convertQueryParamsToFormDates({
+  start,
+  end,
+}: {
+  start: string;
+  end: string;
+}) {
+  let queryStartDate;
+  let queryStartDateTime;
+  let queryEndDate;
+  let queryEndDateTime;
+  if (end) {
+    const endUnixNs = parseInt(end, 10);
+    queryEndDate = formatDate(endUnixNs);
+    queryEndDateTime = formatTime(endUnixNs);
+  }
+  if (start) {
+    const startUnixNs = parseInt(start, 10);
+    queryStartDate = formatDate(startUnixNs);
+    queryStartDateTime = formatTime(startUnixNs);
+  }
+
+  return {
+    queryStartDate,
+    queryStartDateTime,
+    queryEndDate,
+    queryEndDateTime,
+  };
+}
+
+type SearchFormProps = {
   onFinish: (formData: any) => Promise<boolean | void>;
   onReset: (e: any) => Promise<void>;
-}> = ({ onFinish, onReset }) => {
+  invalid?: boolean;
+  submitting?: boolean;
+  searchMaxLookback?: { label: string; value: string };
+  services: Array<{ label: string; value: string }>;
+  selectedService?: string;
+  selectedLookback?: string;
+};
+
+const SearchForm: React.FC<SearchFormProps> = ({
+  onFinish,
+  onReset,
+  invalid,
+  searchMaxLookback,
+  selectedLookback,
+  selectedService = '-',
+  services,
+  submitting: disabled,
+}) => {
+  const now = new Date();
+  const minTimestamp = lookbackToTimestamp('2w', now);
+  const options = lookbackOptions.filter(({ value }) => {
+    const lookbackTimestamp = lookbackToTimestamp(value, now);
+    return lookbackTimestamp >= minTimestamp;
+  });
+  const tz =
+    selectedLookback === 'custom'
+      ? new Date().toTimeString().replace(/^.*?GMT/, 'UTC')
+      : null;
+
   return (
     <ProForm
       onFinish={onFinish}
+      onReset={onReset}
       initialValues={{
         lookback: '1h',
         operation: '',
       }}
-      onReset={onReset}
       submitter={{
         searchConfig: {
           resetText: 'Reset',
@@ -96,101 +183,100 @@ const SearchPlan: React.FC<{
         },
       }}
     >
-      <ProFormSelect name="service" label="Service" request={getServices} />
+      <ProFormSelect
+        name="service"
+        label={
+          <span>
+            Service <span>({services.length})</span>
+          </span>
+        }
+        options={services}
+      />
       <ProFormDependency name={['service']}>
         {({ service }) => {
           return (
             <ProFormSelect
               name="operation"
               label="Operation"
-              params={{ serviceName: service }}
-              request={async () => {
-                return getOperations({ serviceName: service, allowAll: true });
+              params={{ service }}
+              request={async (params) => {
+                console.log('params', params);
+                return getServiceOperations(params.service);
               }}
             />
           );
         }}
       </ProFormDependency>
-      <ProFormSelect
-        name="lookback"
-        label="Lookback"
-        options={lookbackOptions}
-      />
+      <ProFormSelect name="lookback" label="Lookback" options={options} />
       <ProFormText name="tags" label="Tags" />
     </ProForm>
   );
 };
 
 const TracingPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useState('');
-  const [showTrace, setShowTrace] = useState(false);
+  const { styles } = useStyles();
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    getServices().then((res) => {
+      console.log('res', res);
+      setServices(res);
+    });
+  }, []);
 
   return (
     <PageContainer>
       <Card style={{ minHeight: '700px' }}>
-        <Row gutter={24}>
-          <Col span={5}>
-            <SearchPlan
-              onFinish={async (values) => {
-                const formData = {
-                  start: dayjs().subtract(1, 'hour').valueOf() * 1000,
-                  end: dayjs().valueOf() * 1000,
-                  limit: 20,
-                  lookback: '1h',
-                  service: values.service,
-                  minDuration: '',
-                  maxDuration: '',
-                };
-                console.log('formData', formData);
+        <Row gutter={24} className={styles.searchTracePageRow}>
+          <Col span={6} className={styles.searchTracePageColumn}>
+            <div className={styles.searchTracePageFind}>
+              <Tabs
+                size="large"
+                items={[
+                  {
+                    label: 'Search',
+                    key: 'searchForm',
+                    children: (
+                      <SearchForm
+                        services={services}
+                        onFinish={async (values) => {
+                          console.log('onFinish.values', values);
 
-                const url = new URL('http://localhost:16686/search');
-                url.searchParams.append('uiEmbed', 'v0');
-                if (values.operation) {
-                  url.searchParams.append('operation', values.operation);
-                }
-                Object.entries(formData).forEach(([key, value]) => {
-                  url.searchParams.append(key, value);
-                });
+                          const now = new Date();
+                          const start = lookbackToTimestamp(
+                            values.lookback,
+                            now,
+                          );
+                          const end = now * 1000;
 
-                setSearchParams(url.toString());
-                setShowTrace(true);
-              }}
-              onReset={async () => {
-                setShowTrace(false);
-              }}
-            />
+                          const formData = {
+                            start: start,
+                            end: end,
+                            limit: 20,
+                            lookback: values.lookback,
+                            service: values.service,
+                            minDuration: '',
+                            maxDuration: '',
+                          };
+                          console.log('onFinish.formData', formData);
+
+                          const res = await getTraces(formData);
+                          console.log('res', res);
+                        }}
+                      />
+                    ),
+                  },
+                  {
+                    label: 'Upload',
+                    key: 'fileLoader',
+                  },
+                ]}
+              />
+            </div>
           </Col>
 
-          <Col span={19}>
-            {showTrace ? (
-              <div
-                style={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  width: '100%',
-                  paddingTop: '56.25%',
-                }}
-              >
-                <iframe
-                  style={{
-                    border: 'none',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    width: '100%',
-                    height: '100%',
-                  }}
-                  src={searchParams}
-                ></iframe>
-              </div>
-            ) : (
-              <img
-                style={{ marginLeft: '100px' }}
-                src="http://127.0.0.1:16686/static/jaeger-logo-ab11f618.svg"
-              />
-            )}
+          <Col span={18}>
+            <SearchResults />
           </Col>
         </Row>
       </Card>

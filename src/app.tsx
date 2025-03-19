@@ -52,7 +52,7 @@ export const layout: RunTimeLayoutConfig = ({
     title: '',
     layout: 'mix',
     navTheme: 'light', // 'realDark', // 'light',
-    colorPrimary: '#2F54EB',
+    // colorPrimary: '#2F54EB',
     splitMenus: true,
     fixedHeader: true,
     fixSiderbar: true,

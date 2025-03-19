@@ -2,25 +2,23 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
-export async function getServices() {
-  return request('/api/traces/services').then((res) => {
+const traceApiRoot = '/api/traces';
+
+export type Service = { label: string; value: string };
+
+export async function getServices(): Promise<Array<Service>> {
+  return request(`${traceApiRoot}/services`).then((res) => {
     return res?.data.map((k: any) => ({ label: k, value: k }));
   });
 }
 
-export async function getOperations({
-  serviceName = 'default',
-  allowAll = false,
-}) {
-  return request(`/api/traces/services/${serviceName}/operations`).then(
-    (res) => {
-      const data = res?.data.map((k: any) => ({ label: k, value: k })) || [];
-      if (allowAll) {
-        return [{ label: 'All', value: '' }, ...data];
-      }
-      return data;
-    },
-  );
+export async function getServiceOperations(serviceName: string) {
+  return request(
+    `${traceApiRoot}/services/${encodeURIComponent(serviceName)}/operations`,
+  ).then((res) => {
+    const data = res?.data.map((k: any) => ({ label: k, value: k })) || [];
+    return [{ label: 'all', value: 'all' }, ...data];
+  });
 }
 
 export async function getTraces(params: {
@@ -35,6 +33,7 @@ export async function getTraces(params: {
   return request('/api/traces/traces', {
     params,
   }).then((res) => {
+    console.log('getTraces', res);
     return res?.data;
   });
 }

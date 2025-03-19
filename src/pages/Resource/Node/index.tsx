@@ -52,10 +52,12 @@ const NodePage: React.FC = () => {
     {
       dataIndex: 'name',
       title: '节点名称',
-      render: (dom, { ip }) => (
+      render: (dom, { hostname, ip }) => (
         <Space direction="vertical">
           <Text strong>{dom}</Text>
-          <Text type="secondary">{ip}</Text>
+          <Text type="secondary">
+            {hostname} ({ip})
+          </Text>
         </Space>
       ),
     },

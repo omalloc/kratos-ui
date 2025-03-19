@@ -1,4 +1,10 @@
 declare namespace API {
+  type Action = {
+    key?: string;
+    describe?: string;
+    checked?: boolean;
+  };
+
   type Agent = {
     /** 部署状态 */
     type?: number;
@@ -94,6 +100,29 @@ declare namespace API {
     id?: string;
   };
 
+  type BindNamespaceReply = {};
+
+  type BindNamespaceRequest = {
+    id?: string;
+    namespace_id?: string;
+  };
+
+  type BindPermissionReply = {};
+
+  type BindPermissionRequest = {
+    id?: string;
+    permission_id?: string;
+    actions?: Action[];
+    data_access?: Action[];
+  };
+
+  type BindRoleReply = {};
+
+  type BindRoleRequest = {
+    id?: string;
+    role_id?: string;
+  };
+
   type CreateNodeReply = {
     data?: NodeInfo;
   };
@@ -109,6 +138,36 @@ declare namespace API {
     zone_id?: number;
     /** 环境变量 */
     env?: string;
+  };
+
+  type CreatePermissionReply = {};
+
+  type CreatePermissionRequest = {
+    name?: string;
+    alias?: string;
+    describe?: string;
+    actions?: Action[];
+    status?: number;
+  };
+
+  type CreateRoleReply = {};
+
+  type CreateRoleRequest = {
+    name?: string;
+    describe?: string;
+    status?: number;
+  };
+
+  type CreateUserReply = {};
+
+  type CreateUserRequest = {
+    username?: string;
+    password?: string;
+    re_password?: string;
+    email?: string;
+    nickname?: string;
+    role_id?: string;
+    omit_perm?: string[];
   };
 
   type CreateZoneReply = {
@@ -128,6 +187,12 @@ declare namespace API {
     /** 环境 */
     env?: string;
   };
+
+  type DeletePermissionReply = {};
+
+  type DeleteRoleReply = {};
+
+  type DeleteUserReply = {};
 
   type DeleteZoneReply = {};
 
@@ -150,6 +215,7 @@ declare namespace API {
   };
 
   type DiscoveryKVUpdateHangParams = {
+    /** 主键 */
     id: string;
   };
 
@@ -160,6 +226,29 @@ declare namespace API {
     'pagination.raw_total'?: string;
     /** service name */
     name?: string;
+    /** service namespace */
+    namespace?: string;
+  };
+
+  type GetPermissionReply = {
+    name?: string;
+    alias?: string;
+    describe?: string;
+    actions?: Action[];
+    status?: number;
+  };
+
+  type GetRoleReply = {
+    name?: string;
+    describe?: string;
+    status?: number;
+    actions?: Action[];
+    data_access?: Action[];
+  };
+
+  type GetUserReply = {
+    user?: UserInfo;
+    role_id?: string;
   };
 
   type GetZoneListReply = {
@@ -188,8 +277,25 @@ declare namespace API {
   type KVUpdateHangReply = {};
 
   type KVUpdateHangRequest = {
+    /** 主键 */
     id?: string;
+    /** 挂起状态 true 为挂起1111 */
     hang?: boolean;
+  };
+
+  type ListPermissionReply = {
+    data?: PermissionInfo[];
+    pagination?: Pagination;
+  };
+
+  type ListRoleReply = {
+    pagination?: Pagination;
+    data?: RoleInfo[];
+  };
+
+  type ListUserReply = {
+    pagination?: Pagination;
+    data?: UserInfo[];
   };
 
   type NamespaceApp = {
@@ -336,6 +442,74 @@ declare namespace API {
     raw_total?: string;
   };
 
+  type PermissionDeletePermissionParams = {
+    id: string;
+  };
+
+  type PermissionGetPermissionParams = {
+    id: string;
+  };
+
+  type PermissionInfo = {
+    id?: string;
+    name?: string;
+    alias?: string;
+    describe?: string;
+    actions?: Action[];
+    status?: number;
+  };
+
+  type PermissionListPermissionParams = {
+    'pagination.current'?: number;
+    'pagination.page_size'?: number;
+    'pagination.total'?: number;
+    'pagination.raw_total'?: string;
+    name?: string;
+    alias?: string;
+    status?: number;
+  };
+
+  type PermissionUpdatePermissionParams = {
+    id: string;
+  };
+
+  type RoleBindPermissionParams = {
+    id: string;
+  };
+
+  type RoleDeleteRoleParams = {
+    id: string;
+  };
+
+  type RoleGetRoleParams = {
+    id: string;
+  };
+
+  type RoleInfo = {
+    id?: string;
+    name?: string;
+    describe?: string;
+    status?: number;
+    actions?: Action[];
+    data_access?: Action[];
+  };
+
+  type RoleListRoleParams = {
+    'pagination.current'?: number;
+    'pagination.page_size'?: number;
+    'pagination.total'?: number;
+    'pagination.raw_total'?: string;
+  };
+
+  type RoleUnbindPermissionParams = {
+    id: string;
+    permission_id: string;
+  };
+
+  type RoleUpdateRoleParams = {
+    id: string;
+  };
+
   type Service = {
     id?: string;
     /** 唯一标识 */
@@ -356,6 +530,8 @@ declare namespace API {
     metadata?: Record<string, any>;
     /** 命名空间 */
     namespace?: string;
+    /** 上次心跳间隔 */
+    last_healthy_sec?: number;
   };
 
   type ServiceGroup = {
@@ -392,6 +568,17 @@ declare namespace API {
     code?: string;
   };
 
+  type UnbindNamespaceReply = {};
+
+  type UnbindPermissionReply = {};
+
+  type UnbindPermissionRequest = {
+    id?: string;
+    permission_id?: string;
+  };
+
+  type UnbindRoleReply = {};
+
   type UpdateNodeReply = {
     data?: NodeInfo;
   };
@@ -411,6 +598,37 @@ declare namespace API {
     id?: number;
   };
 
+  type UpdatePermissionReply = {};
+
+  type UpdatePermissionRequest = {
+    id?: string;
+    name?: string;
+    alias?: string;
+    describe?: string;
+    actions?: Action[];
+    status?: number;
+  };
+
+  type UpdateRoleReply = {};
+
+  type UpdateRoleRequest = {
+    id?: string;
+    name?: string;
+    describe?: string;
+    status?: number;
+  };
+
+  type UpdateUserReply = {};
+
+  type UpdateUserRequest = {
+    id?: string;
+    email?: string;
+    nickname?: string;
+    password?: string;
+    re_password?: string;
+    status?: number;
+  };
+
   type UpdateZoneReply = {};
 
   type UpdateZoneRequest = {
@@ -425,6 +643,55 @@ declare namespace API {
     region_code?: string;
     /** 环境 */
     env?: string;
+  };
+
+  type UserBindNamespaceParams = {
+    id: string;
+  };
+
+  type UserBindRoleParams = {
+    id: string;
+  };
+
+  type UserDeleteUserParams = {
+    id: string;
+  };
+
+  type UserGetUserParams = {
+    id: string;
+  };
+
+  type UserInfo = {
+    id?: string;
+    username?: string;
+    email?: string;
+    nickname?: string;
+    avatar?: string;
+    status?: number;
+    created_at?: string;
+    updated_at?: string;
+    role_ids?: string[];
+  };
+
+  type UserListUserParams = {
+    'pagination.current'?: number;
+    'pagination.page_size'?: number;
+    'pagination.total'?: number;
+    'pagination.raw_total'?: string;
+  };
+
+  type UserUnbindNamespaceParams = {
+    id: string;
+    namespace_id: string;
+  };
+
+  type UserUnbindRoleParams = {
+    id: string;
+    role_id: string;
+  };
+
+  type UserUpdateUserParams = {
+    id: string;
   };
 
   type ZoneDeleteParams = {

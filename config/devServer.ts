@@ -11,11 +11,12 @@
  */
 export default {
   '/api/traces': {
-    target: 'http://localhost:16686/api',
+    target: 'https://tracing.svc.baishan.one/api',
     changeOrigin: true,
     pathRewrite: { '^/api/traces': '' },
   },
   '/api': {
+    // target: 'https://console.svc.baishan.one',
     target: 'http://localhost:8010',
     changeOrigin: true,
     // pathRewrite: { '^/api': '' },

@@ -20,6 +20,7 @@ import {
   Typography,
   message,
   notification,
+  type ColumnType,
 } from 'antd';
 import { useRef, useState } from 'react';
 import { useStyles } from './styles';
@@ -82,9 +83,9 @@ const serviceNameRender = ({
       <br />
       <span style={{ color: '#999' }}>
         {!is_group ? (
-          <span>
-            [{cluster}] {key}
-          </span>
+          <Tooltip title={cluster} placement="topLeft">
+            {key}
+          </Tooltip>
         ) : (
           <span>[{clusters.join(',')}] </span>
         )}
@@ -154,15 +155,14 @@ const hangActionRender = (
   callback: (id: string, hang: boolean) => Promise<void>,
   entity: ServiceType,
 ) => {
-  const { id, metadata, count = 1 } = entity;
-  console.log('entity', entity);
+  const { id, hang, metadata, count = 1 } = entity;
 
-  const hangState = metadata['hang'] === 'true';
+  const hangState = hang || metadata['hang'] === 'true';
   const desc = hangState
     ? '恢复服务后，该服务会在 5 秒内被集群中的服务消费方加入到后端服务列表中，恢复对外提供服务'
     : count > 1
-    ? '请注意，禁用后，服务依赖方将无法调用到该服务'
-    : '请注意，服务仅一个实例，禁止发现后将无法访问该服务提供的功能';
+    ? '请注意，熔断后，服务依赖方将无法调用到该服务'
+    : '请注意，服务仅一个实例，熔断发现后将无法访问该服务提供的功能';
 
   return (
     <Popconfirm
@@ -175,8 +175,8 @@ const hangActionRender = (
     >
       <Switch
         key="disable_service"
-        checkedChildren="正常服务"
-        unCheckedChildren="禁止发现"
+        checkedChildren="正常"
+        unCheckedChildren="熔断"
         checked={!hangState}
       />
     </Popconfirm>
@@ -276,15 +276,20 @@ const OnlineService: React.FC = () => {
       width: 120,
       valueType: 'option',
       render: (_, entity) => {
-        console.log('render entity=', entity);
         return !entity.is_group && [hangActionRender(updateHang, entity)];
       },
     },
   ];
-  const serviceColumns = [
+  const serviceColumns: ColumnType<API.Service>[] = [
     {
       dataIndex: 'status',
       width: 178,
+      align: 'center',
+      render: (_, record: API.Service) => (
+        <Tag color={record.last_healthy_sec > 30 ? 'red' : 'green'}>
+          {record.last_healthy_sec}
+        </Tag>
+      ),
     },
     {
       dataIndex: 'name',
@@ -333,7 +338,6 @@ const OnlineService: React.FC = () => {
       width: 120,
       valueType: 'option',
       render: (_, entity) => {
-        console.log('render entity=', entity);
         return !entity.is_group && [hangActionRender(updateHang, entity)];
       },
     },
@@ -348,6 +352,7 @@ const OnlineService: React.FC = () => {
         className={styles.serviceRow}
         actionRef={actionRef}
         columns={columns}
+        polling={true}
         request={async (params) => {
           const { data } = await DiscoveryOnlineServices(mergeData(params));
           return {
@@ -359,7 +364,7 @@ const OnlineService: React.FC = () => {
           childrenColumnName: 'un-used',
           indentSize: 0,
           expandRowByClick: true,
-          expandedRowRender: ({ children }) => {
+          expandedRowRender: ({ children = [] }) => {
             return (
               <Table
                 size="small"
@@ -369,9 +374,6 @@ const OnlineService: React.FC = () => {
                   ...item,
                   count: children.length,
                 }))}
-                headerTitle={false}
-                search={false}
-                options={false}
                 pagination={false}
                 showHeader={false}
               />

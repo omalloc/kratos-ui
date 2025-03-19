@@ -92,6 +92,5 @@ export default defineConfig({
   ],
 
   //============== 以下都是pro的插件配置 ===============
-  presets: ['umi-presets-pro'],
   openAPI,
 });
